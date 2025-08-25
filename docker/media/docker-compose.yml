@@ -48,3 +48,18 @@ services:
     ports:
       - "7878:7878"
     restart: unless-stopped
+
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      <<: *common-env
+    volumes:
+      - /srv/jellyfin/config:/config
+      - /mnt/media:/mnt/media
+    ports:
+      - "8096:8096" # HTTP Web UI
+      - "8920:8920" # HTTPS Web UI
+      - "7359:7359/udp" # Autodiscovery on local network
+    restart: unless-stopped

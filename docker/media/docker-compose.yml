@@ -63,3 +63,10 @@ services:
       - "8920:8920" # HTTPS Web UI
       - "7359:7359/udp" # Autodiscovery on local network
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]

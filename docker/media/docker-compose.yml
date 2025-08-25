@@ -16,7 +16,7 @@ services:
       TORRENTING_PORT: 6881
     volumes:
       - /srv/qbitorrent/config:/config
-      - /mnt/media:/media
+      - /mnt/media:/mnt/media
     ports:
       - "8080:8080"
       - "6881:6881"
@@ -31,7 +31,7 @@ services:
       <<: *common-env
     volumes:
       - /srv/sonarr/config:/config
-      - /mnt/media:/media
+      - /mnt/media:/mnt/media
     ports:
       - "8989:8989"
     restart: unless-stopped
@@ -44,7 +44,7 @@ services:
       <<: *common-env
     volumes:
       - /srv/radarr/config:/config
-      - /mnt/media:/media
+      - /mnt/media:/mnt/media
     ports:
       - "7878:7878"
     restart: unless-stopped

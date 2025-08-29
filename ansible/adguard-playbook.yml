@@ -1,0 +1,54 @@
+- hosts: adguard
+  tasks:
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Ensure dependencies
+      ansible.builtin.apt:
+        name:
+          - tar
+        state: present
+
+    - name: Create AdGuardHome dir
+      ansible.builtin.file:
+        path: /opt/AdGuardHome/log
+        state: directory
+
+    - name: Download and extract AdGuard Home
+      ansible.builtin.unarchive:
+        src: "https://static.adguard.com/adguardhome/release/AdGuardHome_linux_amd64.tar.gz"
+        include: [ "./AdGuardHome/AdGuardHome" ]
+        dest: /usr/bin
+        remote_src: yes
+        extra_opts: [ '--strip-components=2' ]
+
+    - name: Create systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/AdGuardHome.service
+        content: |
+          [Unit]
+          Description=AdGuard Home: Network-level blocker
+          ConditionFileIsExecutable=/usr/bin/AdGuardHome
+          After=syslog.target network-online.target
+
+          [Service]
+          StartLimitInterval=5
+          StartLimitBurst=10
+          ExecStart=/usr/bin/AdGuardHome "-s" "run"
+          WorkingDirectory=/opt/AdGuardHome
+          StandardOutput=file:/opt/AdGuardHome/log/AdGuardHome.out
+          StandardError=file:/opt/AdGuardHome/log/AdGuardHome.err
+          Restart=always
+          RestartSec=10
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd and enable AdGuard
+      ansible.builtin.systemd:
+        name: AdGuardHome
+        enabled: yes
+        state: started
+        daemon_reload: yes

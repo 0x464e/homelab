@@ -1,0 +1,98 @@
+#cloud-config
+hostname: ${hostname}
+timezone: Europe/Helsinki
+
+users:
+  - name: otto
+    uid: 1000
+    groups: sudo,docker
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    ssh_authorized_keys:
+      - ${ssh_key}
+
+  - name: ansible
+    gecos: Ansible User
+    groups: users,admin,wheel,docker
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_key}
+
+mounts:
+  - [ "192.168.10.5:/mnt/vault/immich", "/mnt/immich", "nfs", "defaults,_netdev,x-systemd.automount,x-systemd.requires=network-online.target", "0", "0" ]
+  - [ "192.168.10.5:/mnt/tank/media", "/mnt/media", "nfs", "defaults,_netdev,x-systemd.automount,x-systemd.requires=network-online.target", "0", "0" ]
+
+package_update: true
+package_upgrade: true
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - software-properties-common
+  - lsb-release
+  - qemu-guest-agent
+  - nfs-common
+  - build-essential
+  - dkms
+  - linux-headers-cloud-amd64
+
+runcmd:
+  - mkdir -p /etc/apt/keyrings
+
+  - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  - echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian trixie stable" > /etc/apt/sources.list.d/docker.list
+
+  - |
+    cat << 'EOF' > /etc/apt/sources.list.d/debian.sources
+    Types: deb
+    URIs: http://deb.debian.org/debian
+    Suites: trixie trixie-updates
+    Components: main contrib non-free non-free-firmware
+    Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+    Types: deb
+    URIs: https://security.debian.org/debian-security
+    Suites: trixie-security
+    Components: main contrib non-free non-free-firmware
+    Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+    EOF
+
+  - curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg
+  - |
+    curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' > /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+  - apt update
+
+  - echo 'keyboard-configuration keyboard-configuration/layout select Finnish' | debconf-set-selections
+  - echo 'keyboard-configuration keyboard-configuration/layoutcode string fi' | debconf-set-selections
+  - echo 'keyboard-configuration keyboard-configuration/variant select Finnish' | debconf-set-selections
+  - echo 'keyboard-configuration keyboard-configuration/variantcode string' | debconf-set-selections
+  - echo 'keyboard-configuration keyboard-configuration/modelcode string pc105' | debconf-set-selections
+  - echo 'console-setup console-setup/charmap47 select UTF-8' | debconf-set-selections
+  - echo 'console-setup console-setup/codeset47 select Guess optimal character set' | debconf-set-selections
+
+  - apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nvidia-kernel-dkms nvidia-driver firmware-misc-nonfree
+
+  - export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.17.8-1
+  - |
+    apt install -y \
+      nvidia-container-toolkit=$${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      nvidia-container-toolkit-base=$${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      libnvidia-container-tools=$${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      libnvidia-container1=$${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+  - nvidia-ctk runtime configure --runtime=docker
+
+  - systemctl enable docker
+  - docker volume create portainer_data
+  - docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ee:lts
+
+  - mkdir -p /opt/stacks /opt/dockge
+  - curl "https://dockge.kuma.pet/compose.yaml?port=5001&stacksPath=%2Fopt%2Fstacks" --output /opt/stacks/compose.yaml
+  - docker compose -f /opt/stacks/compose.yaml up -d
+
+power_state:
+  mode: reboot
+  message: Rebooting after cloud-init setup

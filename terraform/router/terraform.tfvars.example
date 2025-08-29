@@ -1,0 +1,7 @@
+proxmox_api_endpoint = "https://x.x.x.x:8006/api2/json"
+proxmox_api_token_id = "terraform@pam!tftoken"
+proxmox_api_token = "token"
+ssh_key = "ssh key"
+
+proxmox_username = "root@pam"
+proxmox_password = "password"

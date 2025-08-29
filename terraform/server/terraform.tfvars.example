@@ -1,0 +1,9 @@
+proxmox_api_endpoint = "https://x.x.x.x:8006/api2/json"
+proxmox_api_token_id = "terraform@pve!tftoken"
+proxmox_api_token = "token"
+docker_vm_hostname = "docker"
+ssh_key = "ssh key"
+
+proxmox_ip = "ip"
+proxmox_ssh_username = "username"
+proxmox_ssh_password = "password"

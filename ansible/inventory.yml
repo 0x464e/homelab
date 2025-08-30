@@ -6,7 +6,3 @@ all:
     traefik:
       ansible_host: 192.168.10.10
       ansible_user: root
-      vars:
-        traefik_folder: /etc/traefik
-        homelab_git_folder: /var/lib/homelab-src
-        git_repo_url: "https://github.com/0x464e/homelab.git"

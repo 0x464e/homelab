@@ -1,0 +1,4 @@
+traefik_folder: /etc/traefik
+homelab_git_folder: /var/lib/homelab-src
+git_repo_url: "https://github.com/0x464e/homelab.git"
+domain: "ottos.party"

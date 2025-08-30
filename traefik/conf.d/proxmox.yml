@@ -2,15 +2,15 @@ http:
   routers:
     proxmox-server:
       rule: >
-        "HostRegexp(`(pve|proxmox)-server.{{ env "DOMAIN" }}`)" ||
-        "HostRegexp(`(pve|proxmox)1?.{{ env "DOMAIN" }}`)"
+        HostRegexp(`(pve|proxmox)-server.{{ env "DOMAIN" }}`) ||
+        HostRegexp(`(pve|proxmox)1?.{{ env "DOMAIN" }}`)
       entryPoints: ["websecure"]
       service: proxmox-server
 
     proxmox-router:
       rule: >
-        "HostRegexp(`(pve|proxmox)-(router|topton).{{ env "DOMAIN" }}`)" ||
-        "HostRegexp(`(pve|proxmox)2.{{ env "DOMAIN" }}`)"
+        HostRegexp(`(pve|proxmox)-(router|topton).{{ env "DOMAIN" }}`) ||
+        HostRegexp(`(pve|proxmox)2.{{ env "DOMAIN" }}`)
       entryPoints: ["websecure"]
       service: proxmox-router
 

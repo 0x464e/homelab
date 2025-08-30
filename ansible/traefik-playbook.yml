@@ -1,0 +1,83 @@
+- hosts: traefik
+  tasks:
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Ensure dependencies
+      ansible.builtin.apt:
+        name:
+          - tar
+        state: present
+
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ traefik_folder }}/log"
+        - "{{ homelab_git_folder }}"
+
+    - name: Clone git repo
+      ansible.builtin.git:
+        repo: "{{ git_repo_url }}"
+        dest: "{{ homelab_git_folder }}"
+        single_branch: true
+        depth: 1
+        force: yes
+      register: git_result
+
+    - name: Detect if static config changed
+      ansible.builtin.command: bash -lc "cmp -s {{ homelab_git_folder }}/traefik/traefik.yml {{ traefik_folder }}/traefik.yml"
+      register: cmp_traefik_yml
+      failed_when: false
+      changed_when: false
+
+    - name: Rsync /traefik from git repo
+      ansible.posix.synchronize:
+        src: "{{ homelab_git_folder }}/traefik/"
+        dest: "{{ traefik_dest }}/"
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Restart Traefik if static config changed
+      ansible.builtin.shell: systemctl restart traefik
+      when: cmp_traefik_yml.rc == 1 # 0 = no diff, 1 = diff, 2 = destination yml did not even exist yet
+
+    - name: Download and extract Traefik
+      ansible.builtin.unarchive:
+        src: "https://github.com/traefik/traefik/releases/download/v3.5.1/traefik_v3.5.1_linux_amd64.tar.gz"
+        include: [ "traefik" ]
+        dest: /usr/bin
+        remote_src: yes
+
+    - name: Create systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/traefik.service
+        content: |
+          [Unit]
+          Description=Traefik: The Cloud Native Edge Router
+          ConditionFileIsExecutable=/usr/bin/traefik
+          After=syslog.target network-online.target
+
+          [Service]
+          Type=notify
+          StartLimitInterval=5
+          StartLimitBurst=10
+          ExecStart=/usr/bin/traefik
+          StandardOutput=file:{{ traefik_folder }}/log/traefik.out
+          StandardError=file:{{ traefik_folder }}/log/traefik.err
+          Restart=always
+          RestartSec=10
+          ExecReload=/bin/kill -USR1 \$MAINPID
+          Environment="DOMAIN=ottos.party"
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd and enable Traefik
+      ansible.builtin.systemd:
+        name: traefik
+        enabled: yes
+        state: started
+        daemon_reload: yes

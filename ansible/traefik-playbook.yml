@@ -73,6 +73,8 @@
           RestartSec=10
           ExecReload=/bin/kill -USR1 \$MAINPID
           Environment="DOMAIN={{ domain }}"
+          Environment="TRAEFIK_FOLDER={{ traefik_folder }}"
+          Environment="CF_DNS_API_TOKEN={{ cloudflare_dns_api_token }}"
 
           [Install]
           WantedBy=multi-user.target

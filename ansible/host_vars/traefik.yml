@@ -1,5 +1,9 @@
 traefik_folder: /etc/traefik
-homelab_git_folder: /var/lib/homelab-src
 git_repo_url: "https://github.com/0x464e/homelab.git"
-domain: "ottos.party"
+domain: "lan.ottos.party"
+
+cf_email: "email"
 cloudflare_dns_api_token: "token"
+
+proxmox_server_ip: "192.168.10.4"
+proxmox_router_ip: "192.168.10.3"

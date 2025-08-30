@@ -1,0 +1,36 @@
+http:
+  routers:
+    proxmox-server:
+      rule: >
+        HostRegexp(`(pve|proxmox)-server.{{ domain }}`) ||
+        HostRegexp(`(pve|proxmox)1?.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: proxmox-server
+
+    proxmox-router:
+      rule: >
+        HostRegexp(`(pve|proxmox)-(router|topton).{{ domain }}`) ||
+        HostRegexp(`(pve|proxmox)2.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: proxmox-router
+
+  services:
+    proxmox-server:
+      loadBalancer:
+        servers:
+          - url: "https://{{ proxmox_server_ip }}:8006"
+        serversTransport: proxmox-server-verify
+
+    proxmox-router:
+      loadBalancer:
+        servers:
+          - url: "https://{{ proxmox_router_ip }}:8006"
+        serversTransport: proxmox-router-verify
+
+  serversTransports:
+    proxmox-server-verify:
+      serverName: "pve-server.{{ domain }}"
+    proxmox-router-verify:
+      serverName: "pve-router.{{ domain }}"
+
+

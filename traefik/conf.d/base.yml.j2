@@ -1,0 +1,21 @@
+http:
+  routers:
+    traefik-dashboard:
+      rule: Host(`traefik.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: api@internal
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true
+
+  stores:
+    default:
+      defaultGeneratedCert:
+        resolver: cloudflare
+        domain:
+          main: "{{ domain }}"
+          sans:
+            - "*.{{ domain }}"

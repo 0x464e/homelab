@@ -10,7 +10,6 @@
         name:
           - tar
           - git
-          - rsync
         state: present
 
     - name: Create directories
@@ -19,32 +18,25 @@
         state: directory
       loop:
         - "{{ traefik_folder }}/log"
-        - "{{ homelab_git_folder }}"
 
-    - name: Clone git repo
-      ansible.builtin.git:
-        repo: "{{ git_repo_url }}"
-        dest: "{{ homelab_git_folder }}"
-        single_branch: true
-        depth: 1
-        force: yes
-      register: git_result
+    - name: Render static config
+      ansible.builtin.template:
+        src: "../traefik/traefik.yml.j2"
+        dest: "{{ traefik_folder }}/traefik.yml"
+      notify: Restart traefik
 
-    - name: Detect if static config changed
-      ansible.builtin.command: bash -lc "cmp -s {{ homelab_git_folder }}/traefik/traefik.yml {{ traefik_folder }}/traefik.yml"
-      register: cmp_traefik_yml
-      failed_when: false
-      changed_when: false
+    - name: Render dynamic configs
+      ansible.builtin.template:
+        src: "{{ item }}"
+        dest: "{{ traefik_folder }}/conf.d/{{ item | basename | replace('.j2', '') }}"
+      with_fileglob:
+        - "../traefik/conf.d/*.j2"
 
-    - name: Rsync /traefik from git repo
-      ansible.posix.synchronize:
-        src: "{{ homelab_git_folder }}/traefik/"
-        dest: "{{ traefik_folder }}/"
-      delegate_to: "{{ inventory_hostname }}"
-
-    - name: Restart Traefik if static config changed
-      ansible.builtin.shell: systemctl restart traefik
-      when: cmp_traefik_yml.rc == 1 # 0 = no diff, 1 = diff, 2 = destination yml did not even exist yet
+    - name: Ensure acme.json exists and locked down
+      ansible.builtin.file:
+        path: "{{ traefik_folder }}/acme.json"
+        state: touch
+        mode: "0600"
 
     - name: Download and extract Traefik
       ansible.builtin.unarchive:
@@ -71,17 +63,26 @@
           StandardError=file:{{ traefik_folder }}/log/traefik.err
           Restart=always
           RestartSec=10
-          ExecReload=/bin/kill -USR1 \$MAINPID
-          Environment="DOMAIN={{ domain }}"
-          Environment="TRAEFIK_FOLDER={{ traefik_folder }}"
+          ExecReload=/bin/kill -USR1 $MAINPID
           Environment="CF_DNS_API_TOKEN={{ cloudflare_dns_api_token }}"
 
           [Install]
           WantedBy=multi-user.target
+      register: service_config
 
-    - name: Reload systemd and enable Traefik
+    - name: Reload systemd if traefik service file changed
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      when: service_config.changed
+
+    - name: Start and enable Traefik service
       ansible.builtin.systemd:
         name: traefik
         enabled: yes
         state: started
-        daemon_reload: yes
+
+  handlers:
+    - name: Restart traefik
+      ansible.builtin.systemd:
+        name: traefik
+        state: restarted

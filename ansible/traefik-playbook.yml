@@ -9,6 +9,8 @@
       ansible.builtin.apt:
         name:
           - tar
+          - git
+          - rsync
         state: present
 
     - name: Create directories
@@ -37,7 +39,7 @@
     - name: Rsync /traefik from git repo
       ansible.posix.synchronize:
         src: "{{ homelab_git_folder }}/traefik/"
-        dest: "{{ traefik_dest }}/"
+        dest: "{{ traefik_folder }}/"
       delegate_to: "{{ inventory_hostname }}"
 
     - name: Restart Traefik if static config changed
@@ -70,7 +72,7 @@
           Restart=always
           RestartSec=10
           ExecReload=/bin/kill -USR1 \$MAINPID
-          Environment="DOMAIN=ottos.party"
+          Environment="DOMAIN={{ domain }}"
 
           [Install]
           WantedBy=multi-user.target

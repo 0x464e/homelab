@@ -1,0 +1,14 @@
+tcp:
+  routers:
+    apex:
+      rule: "HostSNI(`{{ domain }}`)"
+      entryPoints: ["https"]
+      service: apex
+      tls:
+        passthrough: true
+
+  services:
+    apex:
+      loadBalancer:
+        servers:
+          - address: "{{ domain }}:443"

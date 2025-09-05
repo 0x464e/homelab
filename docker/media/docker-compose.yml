@@ -69,7 +69,7 @@ services:
       - /srv/radarr/config:/config
       - /mnt/media:/mnt/media
     ports:
-      - "7878:7878"
+      - "192.168.10.6:7878:7878"
     restart: unless-stopped
     labels:
       - "traefik.enable=true"

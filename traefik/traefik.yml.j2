@@ -13,6 +13,11 @@ entryPoints:
         options: default
 
 providers:
+  docker:
+    endpoint: "ssh://docker-vm"
+    exposedByDefault: false
+    useBindPortIP: true
+    watch: true
   file:
     directory: "{{ traefik_folder }}/conf.d/"
     watch: true

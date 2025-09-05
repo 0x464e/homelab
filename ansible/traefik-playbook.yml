@@ -10,6 +10,7 @@
         name:
           - tar
           - git
+          - openssh-client
         state: present
 
     - name: Create directories
@@ -18,6 +19,34 @@
         state: directory
       loop:
         - "{{ traefik_folder }}/log"
+        - "{{ traefik_folder }}/ssh"
+
+    - name: Generate SSH keypair for Traefik → Docker
+      community.crypto.openssh_keypair:
+        path: "{{ traefik_folder }}/ssh/id_ed25519"
+        type: ed25519
+        mode: "0600"
+        comment: "traefik@{{ inventory_hostname }}"
+      register: traefik_sshkey
+
+    - name: Create SSH config entry for Docker VM
+      ansible.builtin.copy:
+        dest: /etc/ssh/ssh_config.d/traefik-docker.conf
+        mode: "0644"
+        content: |
+          Host docker-vm
+            HostName {{ docker_vm_ip }}
+            User {{ hostvars['docker-vm']['ansible_user'] }}
+            IdentityFile {{ traefik_folder }}/ssh/id_ed25519
+            IdentitiesOnly yes
+            StrictHostKeyChecking accept-new
+
+    - name: Authorize Traefik public key on Docker VM user
+      ansible.builtin.authorized_key:
+        user: "{{ hostvars['docker-vm']['ansible_user'] }}"
+        key: "{{ traefik_sshkey.public_key }}"
+        state: present
+      delegate_to: docker-vm
 
     - name: Render static config
       ansible.builtin.template:

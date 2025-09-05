@@ -1,0 +1,26 @@
+http:
+  routers:
+    home-assistant:
+      rule: Host(`home-assistant.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: home-assistant
+
+    home-assistant-aliases:
+      rule: HostRegexp(`(ha|haos|homeassistant).{{ domain }}`)
+      entryPoints: [ "https" ]
+      middlewares:
+        - home-assistant-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    home-assistant-alias-redirect:
+      redirectRegex:
+        regex: {{ domain_regex }}
+        replacement: "https://home-assistant.{{ domain }}$1"
+        permanent: true
+
+  services:
+    home-assistant:
+      loadBalancer:
+        servers:
+          - url: "http://{{ home_assistant_address }}"

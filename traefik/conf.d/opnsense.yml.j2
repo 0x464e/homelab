@@ -1,0 +1,31 @@
+http:
+  routers:
+    opnsense:
+      rule: Host(`opnsense.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: opnsense
+
+    opnsense-aliases:
+      rule: Host(`router.{{ domain }}`)
+      entryPoints: [ "https" ]
+      middlewares:
+        - opnsense-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    opnsense-alias-redirect:
+      redirectRegex:
+        regex: {{ domain_regex }}
+        replacement: "https://opnsense.{{ domain }}$1"
+        permanent: true
+
+  services:
+    opnsense:
+      loadBalancer:
+        servers:
+          - url: "https://{{ opnsense_address }}"
+        serversTransport: opnsense-verify
+
+  serversTransports:
+    opnsense-verify:
+      serverName: "opnsense.{{ domain }}"

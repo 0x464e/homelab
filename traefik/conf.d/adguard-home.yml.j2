@@ -1,0 +1,26 @@
+http:
+  routers:
+    adguard-home:
+      rule: Host(`adguard-home.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: adguard-home
+
+    adguard-home-aliases:
+      rule: HostRegexp(`adguard(home)?.{{ domain }}`)
+      entryPoints: [ "https" ]
+      middlewares:
+        - adguard-home-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    adguard-home-alias-redirect:
+      redirectRegex:
+        regex: {{ domain_regex }}
+        replacement: "https://adguard-home.{{ domain }}$1"
+        permanent: true
+
+  services:
+    adguard-home:
+      loadBalancer:
+        servers:
+          - url: "http://{{ adguard_home_address }}"

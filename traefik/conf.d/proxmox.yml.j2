@@ -1,30 +1,53 @@
 http:
   routers:
     proxmox-server:
-      rule: >
-        HostRegexp(`(pve|proxmox)-server.{{ domain }}`) ||
-        HostRegexp(`(pve|proxmox)1?.{{ domain }}`)
+      rule: Host(`proxmox-server.{{ domain }}`)
       entryPoints: [ "https" ]
       service: proxmox-server
 
+    proxmox-server-aliases:
+      rule: HostRegexp(`pve1?-?(server)?.{{ domain }}`)
+      entryPoints: [ "https" ]
+      middlewares:
+        - proxmox-server-alias-redirect
+      service: noop@internal
+
     proxmox-router:
-      rule: >
-        HostRegexp(`(pve|proxmox)-(router|topton).{{ domain }}`) ||
-        HostRegexp(`(pve|proxmox)2.{{ domain }}`)
+      rule: Host(`proxmox-router.{{ domain }}`)
       entryPoints: [ "https" ]
       service: proxmox-router
+
+    proxmox-router-aliases:
+      rule: HostRegexp(`pve2-?(router|topton)?.{{ domain }}`)
+      entryPoints: [ "https" ]
+      middlewares:
+        - proxmox-router-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    proxmox-server-alias-redirect:
+      redirectRegex:
+        regex: {{ domain_regex }}
+        replacement: "https://proxmox-server.{{ domain }}$1"
+        permanent: true
+
+    proxmox-router-alias-redirect:
+      redirectRegex:
+        regex: {{ domain_regex }}
+        replacement: "https://proxmox-router.{{ domain }}$1"
+        permanent: true
 
   services:
     proxmox-server:
       loadBalancer:
         servers:
-          - url: "https://{{ proxmox_server_ip }}:8006"
+          - url: "https://{{ proxmox_server_address }}"
         serversTransport: proxmox-server-verify
 
     proxmox-router:
       loadBalancer:
         servers:
-          - url: "https://{{ proxmox_router_ip }}:8006"
+          - url: "https://{{ proxmox_router_address }}"
         serversTransport: proxmox-router-verify
 
   serversTransports:

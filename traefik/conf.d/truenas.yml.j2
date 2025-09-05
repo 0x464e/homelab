@@ -1,0 +1,31 @@
+http:
+  routers:
+    truenas:
+      rule: Host(`truenas.{{ domain }}`)
+      entryPoints: [ "https" ]
+      service: truenas
+
+    truenas-aliases:
+      rule: Host(`nas.{{ domain }}`)
+      entryPoints: [ "https" ]
+      middlewares:
+        - truenas-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    truenas-alias-redirect:
+      redirectRegex:
+        regex: {{ domain_regex }}
+        replacement: "https://truenas.{{ domain }}$1"
+        permanent: true
+
+  services:
+    truenas:
+      loadBalancer:
+        servers:
+          - url: "https://{{ truenas_address }}"
+        serversTransport: truenas-verify
+
+  serversTransports:
+    truenas-verify:
+      serverName: "truenas.{{ domain }}"

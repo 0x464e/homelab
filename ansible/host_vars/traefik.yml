@@ -1,9 +1,16 @@
 traefik_folder: /etc/traefik
 git_repo_url: "https://github.com/0x464e/homelab.git"
-domain: "lan.ottos.party"
+domain: "ottos.party"
+domain_regex: "^.*\\.ottos\\.party(.*)$"
 
 cf_email: "email"
 cloudflare_dns_api_token: "token"
 
-proxmox_server_ip: "192.168.10.4"
-proxmox_router_ip: "192.168.10.3"
+proxmox_server_address: "192.168.10.4:8006"
+proxmox_router_address: "192.168.10.3:8006"
+opnsense_address: "192.168.10.1"
+home_assistant_address: "192.168.10.7:8123"
+adguard_home_address: "192.168.10.8"
+truenas_address: "192.168.10.5"
+
+docker_vm_ip: "192.168.10.6"

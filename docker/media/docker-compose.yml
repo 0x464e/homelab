@@ -19,10 +19,28 @@ services:
       - /srv/qbitorrent/config:/config
       - /mnt/media:/mnt/media
     ports:
-      - "8080:8080"
+      - "192.168.10.6:8080:8080"
       - "6881:6881"
       - "6881:6881/udp"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+
+      # main route
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.ottos.party`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=https"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
+
+      # aliases route
+      - "traefik.http.routers.qbittorrent-aliases.rule=HostRegexp(`qbt?\\.ottos\\.party`)"
+      - "traefik.http.routers.qbittorrent-aliases.entrypoints=https"
+      - "traefik.http.routers.qbittorrent-aliases.middlewares=qbittorrent-alias-redirect"
+      - "traefik.http.routers.qbittorrent-aliases.service=noop@internal"
+
+      # alias redirect middleware
+      - "traefik.http.middlewares.qbittorrent-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
+      - "traefik.http.middlewares.qbittorrent-alias-redirect.redirectregex.replacement=https://qbittorrent.ottos.party$1"
+      - "traefik.http.middlewares.qbittorrent-alias-redirect.redirectregex.permanent=true"
 
 
   sonarr:

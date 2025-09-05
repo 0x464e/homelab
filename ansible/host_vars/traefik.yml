@@ -12,5 +12,3 @@ opnsense_address: "192.168.10.1"
 home_assistant_address: "192.168.10.7:8123"
 adguard_home_address: "192.168.10.8"
 truenas_address: "192.168.10.5"
-
-docker_vm_ip: "192.168.10.6"

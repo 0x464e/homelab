@@ -35,7 +35,7 @@
         mode: "0644"
         content: |
           Host docker-vm
-            HostName {{ docker_vm_ip }}
+            HostName {{ hostvars['docker-vm']['ansible_host'] }}
             User {{ hostvars['docker-vm']['ansible_user'] }}
             IdentityFile {{ traefik_folder }}/ssh/id_ed25519
             IdentitiesOnly yes

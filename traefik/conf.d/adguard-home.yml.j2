@@ -6,7 +6,7 @@ http:
       service: adguard-home
 
     adguard-home-aliases:
-      rule: HostRegexp(`adguard(home)?.{{ domain }}`)
+      rule: HostRegexp(`adguard(home)?\.{{ domain | regex_escape }}`)
       entryPoints: [ "https" ]
       middlewares:
         - adguard-home-alias-redirect

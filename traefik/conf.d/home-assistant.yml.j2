@@ -6,7 +6,7 @@ http:
       service: home-assistant
 
     home-assistant-aliases:
-      rule: HostRegexp(`(ha|haos|homeassistant).{{ domain }}`)
+      rule: HostRegexp(`(ha|haos|homeassistant)\.{{ domain | regex_escape }}`)
       entryPoints: [ "https" ]
       middlewares:
         - home-assistant-alias-redirect

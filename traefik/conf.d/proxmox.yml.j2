@@ -18,7 +18,7 @@ http:
       service: proxmox-router
 
     proxmox-router-aliases:
-      rule: HostRegexp(`pve2-?(router|topton)?\.{{ domain | regex_escape }}`)
+      rule: HostRegexp(`pve(2|-(router|topton))\.{{ domain | regex_escape }}`)
       entryPoints: [ "https" ]
       middlewares:
         - proxmox-router-alias-redirect

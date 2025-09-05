@@ -20,13 +20,28 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_DATABASE_NAME=${DB_DATABASE_NAME}
     ports:
-      - '2283:2283'
+      - "192.168.10.6:2283:2283"
     depends_on:
       - redis
       - database
     restart: always
-    healthcheck:
-      disable: false
+    labels:
+      - "traefik.enable=true"
+
+      # main route
+      - "traefik.http.routers.immich.rule=Host(`photos.ottos.party`)"
+      - "traefik.http.routers.immich.entrypoints=https"
+
+      # aliases route
+      - "traefik.http.routers.immich-aliases.rule=HostRegexp(`(immich|gallery)\\.ottos\\.party`)"
+      - "traefik.http.routers.immich-aliases.entrypoints=https"
+      - "traefik.http.routers.immich-aliases.middlewares=immich-alias-redirect"
+      - "traefik.http.routers.immich-aliases.service=noop@internal"
+
+      # alias redirect middleware
+      - "traefik.http.middlewares.immich-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
+      - "traefik.http.middlewares.immich-alias-redirect.redirectregex.replacement=https://photos.ottos.party$1"
+      - "traefik.http.middlewares.immich-alias-redirect.redirectregex.permanent=true"
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -45,8 +60,6 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_DATABASE_NAME=${DB_DATABASE_NAME}
     restart: always
-    healthcheck:
-      disable: false
 
   redis:
     container_name: immich_redis

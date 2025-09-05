@@ -52,8 +52,12 @@ services:
       - /srv/sonarr/config:/config
       - /mnt/media:/mnt/media
     ports:
-      - "8989:8989"
+      - "192.168.10.6:8989:8989"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.ottos.party`)"
+      - "traefik.http.routers.sonarr.entrypoints=https"
 
 
   radarr:
@@ -67,6 +71,10 @@ services:
     ports:
       - "7878:7878"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.ottos.party`)"
+      - "traefik.http.routers.radarr.entrypoints=https"
 
 
   jellyfin:
@@ -78,8 +86,8 @@ services:
       - /srv/jellyfin/config:/config
       - /mnt/media:/mnt/media
     ports:
-      - "8096:8096" # HTTP Web UI
-      - "8920:8920" # HTTPS Web UI
+      - "192.168.10.6:8096:8096" # HTTP Web UI
+      # - "8920:8920" # HTTPS Web UI
       - "7359:7359/udp" # Autodiscovery on local network
     restart: unless-stopped
     deploy:
@@ -89,3 +97,21 @@ services:
             - driver: nvidia
               count: all
               capabilities: [ gpu ]
+    labels:
+      - "traefik.enable=true"
+
+      # main route
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.ottos.party`)"
+      - "traefik.http.routers.jellyfin.entrypoints=https"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+
+      # aliases route
+      - "traefik.http.routers.jellyfin-aliases.rule=Host(`jelly.ottos.party`)"
+      - "traefik.http.routers.jellyfin-aliases.entrypoints=https"
+      - "traefik.http.routers.jellyfin-aliases.middlewares=jellyfin-alias-redirect"
+      - "traefik.http.routers.jellyfin-aliases.service=noop@internal"
+
+      # alias redirect middleware
+      - "traefik.http.middlewares.jellyfin-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
+      - "traefik.http.middlewares.jellyfin-alias-redirect.redirectregex.replacement=https://jellyfin.ottos.party$1"
+      - "traefik.http.middlewares.jellyfin-alias-redirect.redirectregex.permanent=true"

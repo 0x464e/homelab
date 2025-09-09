@@ -1,7 +1,7 @@
 resource "proxmox_lxc" "traefik" {
   target_node  = "topton"
   hostname     = "traefik"
-  ostemplate   = "local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
+  ostemplate   = "local:vztmpl/debian-13-standard_13.1-1_amd64.tar.zst"
   unprivileged = true
   start = true
   onboot = true

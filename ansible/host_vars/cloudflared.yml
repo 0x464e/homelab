@@ -1,0 +1,3 @@
+cloudflared_folder: /etc/cloudflared
+
+cf_tunnel_id: "id"

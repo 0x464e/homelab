@@ -1,0 +1,61 @@
+- hosts: cloudflared
+  tasks:
+    - name: Ensure keyring directory exists
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Fetch Cloudflare signing key
+      ansible.builtin.get_url:
+        url: https://pkg.cloudflare.com/cloudflare-main.gpg
+        dest: /usr/share/keyrings/cloudflare-main.gpg
+        mode: "0644"
+
+    - name: Add Cloudflare deb822 repository
+      ansible.builtin.deb822_repository:
+        name: cloudflared
+        types: [ deb ]
+        uris: https://pkg.cloudflare.com/cloudflared
+        suites: [ any ]
+        components: [ main ]
+        signed_by: /usr/share/keyrings/cloudflare-main.gpg
+        state: present
+        enabled: true
+
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install cloudflared
+      ansible.builtin.apt:
+        name:
+          - cloudflared
+        state: present
+
+    - name: Ensure cloudflared directory
+      ansible.builtin.file:
+        path: "{{ cloudflared_folder }}"
+        state: directory
+
+    - name: Create cloudflared config file
+      ansible.builtin.copy:
+        dest: "{{ cloudflared_folder }}/config.yml"
+        content: |
+          tunnel: {{ cf_tunnel_id }}
+          credentials-file: {{ cloudflared_folder }}/{{ cf_tunnel_id }}.json
+          
+          ingress:
+            - hostname: photos.ottos.party
+              service: hello_world
+            - service: http_status:404
+
+    - name: Install cloudflared systemd service
+      ansible.builtin.shell: cloudflared service install
+
+    - name: Enable Cloudflared
+      ansible.builtin.systemd:
+        name: cloudflared
+        enabled: yes
+        state: started

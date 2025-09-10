@@ -9,3 +9,6 @@ all:
     docker-vm:
       ansible_host: 192.168.10.6
       ansible_user: ansible
+    cloudflared:
+      ansible_host: 192.168.10.11
+      ansible_user: root

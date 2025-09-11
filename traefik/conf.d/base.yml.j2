@@ -2,7 +2,7 @@ http:
   routers:
     traefik-dashboard:
       rule: Host(`traefik.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: api@internal
 
 tls:

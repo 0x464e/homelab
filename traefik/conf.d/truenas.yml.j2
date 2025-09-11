@@ -2,12 +2,12 @@ http:
   routers:
     truenas:
       rule: Host(`truenas.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: truenas
 
     truenas-aliases:
       rule: Host(`nas.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       middlewares:
         - truenas-alias-redirect
       service: noop@internal

@@ -96,7 +96,7 @@ runcmd:
       -v portainer_data:/data \
       --label 'traefik.enable=true' \
       --label 'traefik.http.routers.portainer.rule=Host(`portainer.ottos.party`)' \
-      --label 'traefik.http.routers.portainer.entrypoints=https' \
+      --label 'traefik.http.routers.portainer.entrypoints=lan-https' \
       --label 'traefik.http.services.portainer.loadbalancer.server.port=9000' \
       --label 'traefik.http.services.portainer.loadbalancer.server.scheme=http' \
       portainer/portainer-ee:latest

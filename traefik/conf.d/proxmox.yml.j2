@@ -2,24 +2,24 @@ http:
   routers:
     proxmox-server:
       rule: Host(`proxmox-server.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: proxmox-server
 
     proxmox-server-aliases:
       rule: HostRegexp(`pve1?-?(server)?\.{{ domain | regex_escape }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       middlewares:
         - proxmox-server-alias-redirect
       service: noop@internal
 
     proxmox-router:
       rule: Host(`proxmox-router.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: proxmox-router
 
     proxmox-router-aliases:
       rule: HostRegexp(`pve(2|-(router|topton))\.{{ domain | regex_escape }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       middlewares:
         - proxmox-router-alias-redirect
       service: noop@internal

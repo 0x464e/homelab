@@ -2,12 +2,12 @@ http:
   routers:
     opnsense:
       rule: Host(`opnsense.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: opnsense
 
     opnsense-aliases:
       rule: Host(`router.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       middlewares:
         - opnsense-alias-redirect
       service: noop@internal

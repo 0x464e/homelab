@@ -2,12 +2,12 @@ http:
   routers:
     adguard-home:
       rule: Host(`adguard-home.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: adguard-home
 
     adguard-home-aliases:
       rule: HostRegexp(`adguard(home)?\.{{ domain | regex_escape }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       middlewares:
         - adguard-home-alias-redirect
       service: noop@internal

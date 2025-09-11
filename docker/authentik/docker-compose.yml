@@ -54,7 +54,7 @@ services:
     labels:
         - "traefik.enable=true"
         - "traefik.http.routers.authentik.rule=Host(`authentik.ottos.party`)"
-        - "traefik.http.routers.authentik.entrypoints=https"
+        - "traefik.http.routers.authentik.entrypoints=lan-https"
 
 
   worker:

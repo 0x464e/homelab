@@ -2,12 +2,12 @@ http:
   routers:
     home-assistant:
       rule: Host(`home-assistant.{{ domain }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       service: home-assistant
 
     home-assistant-aliases:
       rule: HostRegexp(`(ha|haos|homeassistant)\.{{ domain | regex_escape }}`)
-      entryPoints: [ "https" ]
+      entryPoints: [ "lan-https" ]
       middlewares:
         - home-assistant-alias-redirect
       service: noop@internal

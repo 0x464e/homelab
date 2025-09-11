@@ -28,12 +28,12 @@ services:
 
       # main route
       - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.ottos.party`)"
-      - "traefik.http.routers.qbittorrent.entrypoints=https"
+      - "traefik.http.routers.qbittorrent.entrypoints=lan-https"
       - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
 
       # aliases route
       - "traefik.http.routers.qbittorrent-aliases.rule=HostRegexp(`qbt?\\.ottos\\.party`)"
-      - "traefik.http.routers.qbittorrent-aliases.entrypoints=https"
+      - "traefik.http.routers.qbittorrent-aliases.entrypoints=lan-https"
       - "traefik.http.routers.qbittorrent-aliases.middlewares=qbittorrent-alias-redirect"
       - "traefik.http.routers.qbittorrent-aliases.service=noop@internal"
 
@@ -57,7 +57,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.ottos.party`)"
-      - "traefik.http.routers.sonarr.entrypoints=https"
+      - "traefik.http.routers.sonarr.entrypoints=lan-https"
 
 
   radarr:
@@ -74,7 +74,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.rule=Host(`radarr.ottos.party`)"
-      - "traefik.http.routers.radarr.entrypoints=https"
+      - "traefik.http.routers.radarr.entrypoints=lan-https"
 
 
   jellyfin:
@@ -102,12 +102,12 @@ services:
 
       # main route
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.ottos.party`)"
-      - "traefik.http.routers.jellyfin.entrypoints=https"
+      - "traefik.http.routers.jellyfin.entrypoints=lan-https"
       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
 
       # aliases route
       - "traefik.http.routers.jellyfin-aliases.rule=Host(`jelly.ottos.party`)"
-      - "traefik.http.routers.jellyfin-aliases.entrypoints=https"
+      - "traefik.http.routers.jellyfin-aliases.entrypoints=lan-https"
       - "traefik.http.routers.jellyfin-aliases.middlewares=jellyfin-alias-redirect"
       - "traefik.http.routers.jellyfin-aliases.service=noop@internal"
 

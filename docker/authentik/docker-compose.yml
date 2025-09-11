@@ -59,10 +59,10 @@ services:
       - "traefik.http.routers.authentik.entrypoints=lan-https"
 
       # aliases route
-      - "traefik.http.routers.authentik.rule=Host(`authentik.ottos.party`)"
-      - "traefik.http.routers.authentik.entrypoints=lan-https"
-      - "traefik.http.routers.authentik.middlewares=authentik-alias-redirect"
-      - "traefik.http.routers.authentik.service=noop@internal"
+      - "traefik.http.routers.authentik-aliases.rule=Host(`authentik.ottos.party`)"
+      - "traefik.http.routers.authentik-aliases.entrypoints=lan-https"
+      - "traefik.http.routers.authentik-aliases.middlewares=authentik-alias-redirect"
+      - "traefik.http.routers.authentik-aliases.service=noop@internal"
 
       # alias redirect middleware
       - "traefik.http.middlewares.authentik-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"

@@ -52,9 +52,22 @@ services:
       - /srv/authentik/media:/media
       - /srv/authentik/custom-templates:/templates
     labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.authentik.rule=Host(`authentik.ottos.party`)"
-        - "traefik.http.routers.authentik.entrypoints=lan-https"
+      - "traefik.enable=true"
+
+      # main route
+      - "traefik.http.routers.authentik.rule=Host(`auth.ottos.party`)"
+      - "traefik.http.routers.authentik.entrypoints=lan-https"
+
+      # aliases route
+      - "traefik.http.routers.authentik.rule=Host(`authentik.ottos.party`)"
+      - "traefik.http.routers.authentik.entrypoints=lan-https"
+      - "traefik.http.routers.authentik.middlewares=authentik-alias-redirect"
+      - "traefik.http.routers.authentik.service=noop@internal"
+
+      # alias redirect middleware
+      - "traefik.http.middlewares.authentik-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
+      - "traefik.http.middlewares.authentik-alias-redirect.redirectregex.replacement=https://auth.ottos.party$1"
+      - "traefik.http.middlewares.authentik-alias-redirect.redirectregex.permanent=true"
 
 
   worker:

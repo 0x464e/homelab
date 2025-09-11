@@ -30,11 +30,11 @@ services:
 
       # main route
       - "traefik.http.routers.immich.rule=Host(`photos.ottos.party`)"
-      - "traefik.http.routers.immich.entrypoints=lan-https"
+      - "traefik.http.routers.immich.entrypoints=lan-https,cf-tunnel"
 
       # aliases route
       - "traefik.http.routers.immich-aliases.rule=HostRegexp(`(immich|gallery)\\.ottos\\.party`)"
-      - "traefik.http.routers.immich-aliases.entrypoints=lan-https"
+      - "traefik.http.routers.immich-aliases.entrypoints=lan-https,cf-tunnel"
       - "traefik.http.routers.immich-aliases.middlewares=immich-alias-redirect"
       - "traefik.http.routers.immich-aliases.service=noop@internal"
 

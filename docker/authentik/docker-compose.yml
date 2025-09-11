@@ -56,11 +56,11 @@ services:
 
       # main route
       - "traefik.http.routers.authentik.rule=Host(`auth.ottos.party`)"
-      - "traefik.http.routers.authentik.entrypoints=lan-https"
+      - "traefik.http.routers.authentik.entrypoints=lan-https,cf-tunnel"
 
       # aliases route
       - "traefik.http.routers.authentik-aliases.rule=Host(`authentik.ottos.party`)"
-      - "traefik.http.routers.authentik-aliases.entrypoints=lan-https"
+      - "traefik.http.routers.authentik-aliases.entrypoints=lan-https,cf-tunnel"
       - "traefik.http.routers.authentik-aliases.middlewares=authentik-alias-redirect"
       - "traefik.http.routers.authentik-aliases.service=noop@internal"
 

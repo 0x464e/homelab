@@ -39,23 +39,25 @@
         path: "{{ cloudflared_folder }}"
         state: directory
 
-    - name: Create cloudflared config file
-      ansible.builtin.copy:
+    - name: Render cloudflared config
+      ansible.builtin.template:
+        src: "../cloudflared/config.yml.j2"
         dest: "{{ cloudflared_folder }}/config.yml"
-        content: |
-          tunnel: {{ cf_tunnel_id }}
-          credentials-file: {{ cloudflared_folder }}/{{ cf_tunnel_id }}.json
-          
-          ingress:
-            - hostname: photos.ottos.party
-              service: hello_world
-            - service: http_status:404
+      notify: Restart cloudflared
 
     - name: Install cloudflared systemd service
       ansible.builtin.shell: cloudflared service install
+      args:
+        creates: /etc/systemd/system/cloudflared.service
 
     - name: Enable Cloudflared
       ansible.builtin.systemd:
         name: cloudflared
         enabled: yes
         state: started
+
+  handlers:
+    - name: Restart cloudflared
+      ansible.builtin.systemd:
+        name: cloudflared
+        state: restarted

@@ -1,0 +1,12 @@
+tunnel: "{{ cf_tunnel_id }}"
+credentials-file: "{{ cloudflared_folder }}/{{ cf_tunnel_id }}.json"
+originRequest:
+  originServerName: "{{ domain }}"
+
+ingress:
+{% for host in tunnel_hosts %}
+  - hostname: "{{ host }}.{{ domain }}"
+    service: "{{ traefik_tunnel_address }}"
+{% endfor %}
+
+  - service: http_status:404

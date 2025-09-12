@@ -1,3 +1,12 @@
 cloudflared_folder: /etc/cloudflared
+domain: "ottos.party"
 
 cf_tunnel_id: "id"
+
+traefik_tunnel_address: "https://{{ hostvars['traefik']['ansible_host'] }}:8443"
+tunnel_hosts:
+  - photos
+  - immich
+  - gallery
+  - auth
+  - authentik

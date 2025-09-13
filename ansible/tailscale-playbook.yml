@@ -1,0 +1,74 @@
+- hosts: tailscale
+  tasks:
+    - name: Ensure keyring directory exists
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Fetch Tailscale signing key
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg
+        dest: /usr/share/keyrings/tailscale-key.gpg
+        mode: "0644"
+
+    - name: Add Tailscale deb822 repository
+      ansible.builtin.deb822_repository:
+        name: tailscale
+        types: [ deb ]
+        uris: https://pkgs.tailscale.com/stable/debian
+        suites: trixie
+        components: [ main ]
+        signed_by: /usr/share/keyrings/tailscale-key.gpg
+        state: present
+        enabled: true
+
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install tailscale
+      ansible.builtin.apt:
+        name:
+          - tailscale
+          - ethtool
+          - networkd-dispatcher
+        state: present
+
+    - name: Enable IPv4 forwarding (persistent + live)
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        state: present
+        sysctl_set: true
+        sysctl_file: /etc/sysctl.d/99-tailscale.conf
+        reload: true
+
+    - name: Enable IPv6 forwarding (persistent + live)
+      ansible.posix.sysctl:
+        name: net.ipv6.conf.all.forwarding
+        value: "1"
+        state: present
+        sysctl_set: true
+        sysctl_file: /etc/sysctl.d/99-tailscale.conf
+        reload: true
+
+    - name: Create UDP optimization script for Tailscale
+      ansible.builtin.copy:
+        dest: /etc/networkd-dispatcher/routable.d/50-tailscale
+        mode: "0755"
+        content: |
+          #!/bin/sh
+          
+          /usr/sbin/ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off
+      register: tailscale_udp_script
+
+    - name: Run UDP optimization script immediately if created/changed
+      ansible.builtin.command: /etc/networkd-dispatcher/routable.d/50-tailscale
+      when: tailscale_udp_script.changed
+
+# TODO:
+# Run
+# tailscale up --advertise-routes=192.168.10.0/24 --advertise-connector --ssh
+# for initial setup

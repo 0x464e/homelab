@@ -1,0 +1,26 @@
+http:
+  routers:
+    openwrt:
+      rule: Host(`openwrt.{{ domain }}`)
+      entryPoints: [ "lan-https" ]
+      service: openwrt
+
+    openwrt-aliases:
+      rule: Host(`switch.{{ domain }}`)
+      entryPoints: [ "lan-https" ]
+      middlewares:
+        - openwrt-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    openwrt-alias-redirect:
+      redirectRegex:
+        regex: '{{ domain_regex }}'
+        replacement: "https://openwrt.{{ domain }}$1"
+        permanent: true
+
+  services:
+    openwrt:
+      loadBalancer:
+        servers:
+          - url: "http://{{ openwrt_address }}"

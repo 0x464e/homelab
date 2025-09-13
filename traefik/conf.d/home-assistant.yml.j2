@@ -15,7 +15,7 @@ http:
   middlewares:
     home-assistant-alias-redirect:
       redirectRegex:
-        regex: {{ domain_regex }}
+        regex: '{{ domain_regex }}'
         replacement: "https://home-assistant.{{ domain }}$1"
         permanent: true
 

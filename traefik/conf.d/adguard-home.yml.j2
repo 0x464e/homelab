@@ -15,7 +15,7 @@ http:
   middlewares:
     adguard-home-alias-redirect:
       redirectRegex:
-        regex: {{ domain_regex }}
+        regex: '{{ domain_regex }}'
         replacement: "https://adguard-home.{{ domain }}$1"
         permanent: true
 

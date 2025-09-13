@@ -15,7 +15,7 @@ http:
   middlewares:
     truenas-alias-redirect:
       redirectRegex:
-        regex: {{ domain_regex }}
+        regex: '{{ domain_regex }}'
         replacement: "https://truenas.{{ domain }}$1"
         permanent: true
 

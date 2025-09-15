@@ -1,0 +1,41 @@
+http:
+  routers:
+    smlight:
+      rule: Host(`smlight.{{ domain }}`)
+      entryPoints: [ "lan-https" ]
+      service: smlight
+
+    smlight-aliases:
+      rule: Host(`zigbee.{{ domain }}`)
+      entryPoints: [ "lan-https" ]
+      middlewares:
+        - smlight-alias-redirect
+      service: noop@internal
+
+    # Workaround for SMLight Control Panel Web UI bug/bad design:
+    # Even if accessing from HTTPS, they send a hardcoded HTTP redirect from /events to http://ip:81
+    # Fix: redirect properly myself before they have a chance to do it wrong
+    # I have submitted a bug report
+    smlight-sse:
+      rule: Host(`smlight.ottos.party`) && Path(`/events`)
+      entryPoints: [ "lan-https" ]
+      service: smlight-sse
+      priority: 1000
+
+  middlewares:
+    smlight-alias-redirect:
+      redirectRegex:
+        regex: '{{ domain_regex }}'
+        replacement: "https://smlight.{{ domain }}$1"
+        permanent: true
+
+  services:
+    smlight:
+      loadBalancer:
+        servers:
+          - url: "http://{{ smlight_address }}"
+
+    smlight-sse:
+      loadBalancer:
+        servers:
+          - url: "http://{{ smlight_address }}:81"

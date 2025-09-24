@@ -81,5 +81,22 @@ services:
     shm_size: 128mb
     restart: always
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: immich_pgadmin
+    ports:
+      - "192.168.10.6:8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    volumes:
+      - /srv/immich/pgadmin:/var/lib/pgadmin
+    profiles:
+      - pgadmin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.immich-pgadmin.rule=Host(`immich-pgadmin.ottos.party`)"
+      - "traefik.http.routers.immich-pgadmin.entrypoints=lan-https"
+
 volumes:
   model-cache:

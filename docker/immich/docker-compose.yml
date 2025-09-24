@@ -90,7 +90,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     volumes:
-      - /srv/immich/pgadmin:/var/lib/pgadmin
+      - immich-pgadmin-data:/var/lib/pgadmin
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.immich-pgadmin.rule=Host(`immich-pgadmin.ottos.party`)"
@@ -98,3 +98,4 @@ services:
 
 volumes:
   model-cache:
+  immich-pgadmin-data:

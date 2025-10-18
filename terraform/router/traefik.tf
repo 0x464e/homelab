@@ -14,8 +14,6 @@ resource "proxmox_lxc" "traefik" {
   memory = 512
   swap = 0
 
-  nameserver = "1.1.1.1 8.8.8.8"
-
   rootfs {
     storage = "local-zfs"
     size    = "4G"

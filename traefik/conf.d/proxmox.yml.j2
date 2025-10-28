@@ -6,7 +6,7 @@ http:
       service: proxmox-server
 
     proxmox-server-aliases:
-      rule: HostRegexp(`pve1?-?(server)?\.{{ domain | regex_escape }}`)
+      rule: HostRegexp(`pve1?(-?server)?\.{{ domain | regex_escape }}`)
       entryPoints: [ "lan-https" ]
       middlewares:
         - proxmox-server-alias-redirect

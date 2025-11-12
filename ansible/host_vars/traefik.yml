@@ -1,10 +1,17 @@
-traefik_folder: /etc/traefik
+traefik_folder: "/etc/traefik"
 git_repo_url: "https://github.com/0x464e/homelab.git"
 domain: "ottos.party"
 domain_regex: '^.*\.ottos\.party(.*)$'
 
 cf_email: "email"
 cloudflare_dns_api_token: "token"
+
+tos_repo: "0x464e/traefik-opnsense-sync"
+tos_folder: "/etc/traefik-opnsense-sync"
+tos_bin_path: "/usr/bin/traefik-opnsense-sync"
+
+opnsense_api_key: "key"
+opnsense_api_secret: "secret"
 
 proxmox_server_address: "192.168.10.4:8006"
 proxmox_router_address: "192.168.10.3:8006"

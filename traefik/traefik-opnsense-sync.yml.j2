@@ -1,0 +1,13 @@
+traefik:
+  base_url: "https://traefik.{{ domain }}"
+  include_entrypoints:
+    - "lan-https"
+  ignore_routers:
+    - "traefik-dashboard@file"
+
+opnsense:
+  base_url: "https://{{ opnsense_address }}"
+  api_key: "{{ opnsense_api_key }}"
+  api_secret: "{{ opnsense_api_secret }}"
+  host_override: "reverse-proxy.{{ domain }}"
+  verify_tls: false

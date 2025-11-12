@@ -11,6 +11,8 @@
           - tar
           - git
           - openssh-client
+          - python3-minimal
+          - python3-pip
         state: present
 
     - name: Create directories
@@ -20,6 +22,7 @@
       loop:
         - "{{ traefik_folder }}/log"
         - "{{ traefik_folder }}/ssh"
+        - "{{ tos_folder }}"
 
     - name: Generate SSH keypair for Traefik → Docker
       community.crypto.openssh_keypair:
@@ -99,12 +102,12 @@
 
           [Install]
           WantedBy=multi-user.target
-      register: service_config
+      register: traefik_service_config
 
     - name: Reload systemd if traefik service file changed
       ansible.builtin.systemd:
         daemon_reload: yes
-      when: service_config.changed
+      when: traefik_service_config.changed
 
     - name: Start and enable Traefik service
       ansible.builtin.systemd:
@@ -112,8 +115,125 @@
         enabled: yes
         state: started
 
+    - name: pip exrex
+      ansible.builtin.pip:
+        name: exrex
+        version: 0.12.0
+        break_system_packages: true
+
+    - name: Check if traefik-opnsense-sync exists
+      ansible.builtin.stat:
+        path: "{{ tos_bin_path }}"
+      register: tos_bin
+
+    - name: Get current traefik-opnsense-sync version
+      ansible.builtin.command: "{{ tos_bin_path }} --version"
+      changed_when: false
+      failed_when: false
+      when: tos_bin.stat.exists
+      register: installed_tos_version_cmd
+
+    - name: Parse current traefik-opnsense-sync version
+      ansible.builtin.set_fact:
+        current_tos_version: >-
+          {{ 
+            installed_tos_version_cmd.stdout 
+            | regex_search('version:\s*([0-9.]+)', '\1') 
+            | default(['0.0.0'], true)
+            | first
+          }}
+      when: tos_bin.stat.exists and installed_tos_version_cmd.stdout is defined
+
+    - name: Debug current traefik-opnsense-sync version
+      ansible.builtin.debug:
+        msg: "Current traefik-opnsense-sync version: {{ current_tos_version }}"
+      when: tos_bin.stat.exists
+
+    - name: Set default version if not installed
+      ansible.builtin.set_fact:
+        current_tos_version: "0.0.0"
+      when: not tos_bin.stat.exists
+
+    - name: Get latest traefik-opnsense-sync release info
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ tos_repo }}/releases/latest"
+        return_content: yes
+      register: latest_tos_release
+
+    - name: Parse latest traefik-opnsense-sync version
+      ansible.builtin.set_fact:
+        latest_tos_version: "{{ latest_tos_release.json.tag_name | trim('v') }}"
+
+    - name: Detemine if install or upgrade is needed
+      ansible.builtin.set_fact:
+        tos_install_needed: "{{ current_tos_version is version(latest_tos_version, '<', 'semver') }}"
+
+    - name: Get download URL for latest traefik-opnsense-sync binary
+      ansible.builtin.set_fact:
+        latest_tos_download_url: >-
+          {{
+            latest_tos_release.json.assets
+            | selectattr('name', 'equalto', 'traefik-opnsense-sync_Linux_x86_64.tar.gz')
+            | map(attribute='browser_download_url')
+            | first
+          }}
+      when: tos_install_needed
+
+    - name: Download and extract latest traefik-opnsense-sync binary
+      ansible.builtin.unarchive:
+        src: "{{ latest_tos_download_url }}"
+        include: [ "traefik-opnsense-sync" ]
+        dest: /usr/bin
+        remote_src: yes
+      when: tos_install_needed
+      notify: Restart traefik-opnsense-sync
+
+    - name: Render traefik-opnsense-sync config
+      ansible.builtin.template:
+        src: "../traefik/traefik-opnsense-sync.yml.j2"
+        dest: "{{ tos_folder }}/config.yml"
+      notify: Restart traefik-opnsense-sync
+
+    - name: Create systemd service for traefik-opnsense-sync
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/traefik-opnsense-sync.service
+        content: |
+          [Unit]
+          Description=Traefik ↔ OPNsense Sync Service
+          ConditionFileIsExecutable={{ tos_bin_path }}
+          After=syslog.target network-online.target
+          
+          [Service]
+          WorkingDirectory={{ tos_folder }}
+          ExecStart={{ tos_bin_path }}
+          StandardOutput=append:{{ tos_folder }}/traefik-opnsense-sync.out
+          StandardError=append:{{ tos_folder }}/traefik-opnsense-sync.err
+          Restart=always
+          RestartSec=10
+          
+          [Install]
+          WantedBy=multi-user.target
+      register: tos_service_config
+
+    - name: Reload systemd if traefik-opnsense-sync service file changed
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      when: tos_service_config.changed
+
+    - name: Start and enable traefik-opnsense-sync service
+      ansible.builtin.systemd:
+        name: traefik-opnsense-sync
+        enabled: yes
+        state: started
+
+
   handlers:
     - name: Restart traefik
       ansible.builtin.systemd:
         name: traefik
+        state: restarted
+
+    - name: Restart traefik-opnsense-sync
+      ansible.builtin.systemd:
+        name: traefik-opnsense-sync
         state: restarted

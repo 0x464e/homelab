@@ -18,7 +18,7 @@ resource "proxmox_vm_qemu" "docker" {
   qemu_os = "l26"
   scsihw  = "virtio-scsi-pci"
   memory  = 24576
-  balloon = 0
+  balloon = 8192
   skip_ipv6 = true
 
 

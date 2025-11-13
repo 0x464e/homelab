@@ -16,7 +16,7 @@ resource "proxmox_vm_qemu" "home-assistant" {
   qemu_os = "l26"
   scsihw  = "virtio-scsi-pci"
   memory  = 4096
-  balloon = 0
+  balloon = 4096
   skip_ipv6 = true
 
   cpu {

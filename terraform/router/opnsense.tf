@@ -22,6 +22,7 @@ resource "proxmox_vm_qemu" "opnsense" {
   scsihw = "virtio-scsi-pci"
 
   memory = 8192
+  balloon = 8192
 
   skip_ipv6 = true
 

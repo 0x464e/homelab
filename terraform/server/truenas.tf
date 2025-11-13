@@ -14,7 +14,7 @@ resource "proxmox_vm_qemu" "truenas" {
   qemu_os = "l26"
   scsihw = "virtio-scsi-pci"
   memory = 24576
-  balloon = 0
+  balloon = 24576
   skip_ipv6 = true
 
   cpu {

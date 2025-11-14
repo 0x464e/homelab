@@ -18,6 +18,7 @@ services:
       - "8554:8554" # RTSP feeds
       - "8555:8555/tcp" # WebRTC over tcp
       - "8555:8555/udp" # WebRTC over udp
+      - "1984:1984" # go2rtc
     environment:
       FRIGATE_TERRARIUM_CAM_IP: ${FRIGATE_TERRARIUM_CAM_IP}
       FRIGATE_HTTP_USERNAME: ${FRIGATE_HTTP_USERNAME}

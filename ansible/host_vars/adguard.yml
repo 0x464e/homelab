@@ -1,0 +1,3 @@
+adguard_home_repo: "adguardteam/adguardhome"
+adguard_home_folder: "/opt/AdGuardHome"
+adguard_home_bin_path: "/usr/bin/AdGuardHome"

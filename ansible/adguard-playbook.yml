@@ -11,18 +11,73 @@
           - tar
         state: present
 
-    - name: Create AdGuardHome dir
+    - name: Create AdGuard Home dir
       ansible.builtin.file:
-        path: /opt/AdGuardHome/log
+        path: "{{ adguard_home_folder }}/log"
         state: directory
 
-    - name: Download and extract AdGuard Home
+    - name: Check if AdGuard Home binary exists
+      ansible.builtin.stat:
+        path: "{{ adguard_home_bin_path }}"
+      register: adguard_home_bin
+
+    - name: Get current AdGuard Home version
+      ansible.builtin.command: "{{ adguard_home_bin_path }} --version"
+      changed_when: false
+      failed_when: false
+      when: adguard_home_bin.stat.exists
+      register: installed_adguard_home_version_cmd
+
+    - name: Parse current AdGuard Home version
+      ansible.builtin.set_fact:
+        current_adguard_home_version: >-
+          {{
+            installed_adguard_home_version_cmd.stdout
+            | regex_search('version\s*v([0-9.]+)', '\1')
+            | default(['0.0.0'], true)
+            | first
+          }}
+      when: adguard_home_bin.stat.exists and installed_adguard_home_version_cmd.stdout is defined
+
+    - name: Set default version if not installed
+      ansible.builtin.set_fact:
+        current_adguard_home_version: "0.0.0"
+      when: not adguard_home_bin.stat.exists
+
+    - name: Get latest AdGuard Home release info
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ adguard_home_repo }}/releases/latest"
+        return_content: yes
+      register: latest_adguard_home_release
+
+    - name: Parse latest AdGuard Home version
+      ansible.builtin.set_fact:
+        latest_adguard_home_version: "{{ latest_adguard_home_release.json.tag_name | trim('v') }}"
+
+    - name: Detemine if AdGuard Home install or upgrade is needed
+      ansible.builtin.set_fact:
+        adguard_home_install_needed: "{{ current_adguard_home_version is version(latest_adguard_home_version, '<', 'semver') }}"
+
+    - name: Get download URL for latest AdGuard Home binary
+      ansible.builtin.set_fact:
+        latest_adguard_home_download_url: >-
+          {{
+            latest_adguard_home_release.json.assets
+            | selectattr('name', 'search', 'linux_amd64.tar.gz')
+            | map(attribute='browser_download_url')
+            | first
+          }}
+      when: adguard_home_install_needed
+
+    - name: Download and extract latest AdGuard Home binary
       ansible.builtin.unarchive:
-        src: "https://static.adguard.com/adguardhome/release/AdGuardHome_linux_amd64.tar.gz"
+        src: "{{ latest_adguard_home_download_url }}"
         include: [ "./AdGuardHome/AdGuardHome" ]
         dest: /usr/bin
         remote_src: yes
         extra_opts: [ '--strip-components=2' ]
+      when: adguard_home_install_needed
+      notify: Restart AdGuard Home
 
     - name: Create systemd service
       ansible.builtin.copy:
@@ -30,15 +85,15 @@
         content: |
           [Unit]
           Description=AdGuard Home: Network-level blocker
-          ConditionFileIsExecutable=/usr/bin/AdGuardHome
+          ConditionFileIsExecutable={{ adguard_home_bin_path }}
           After=syslog.target network-online.target
 
           [Service]
           StartLimitInterval=5
           StartLimitBurst=10
-          ExecStart=/usr/bin/AdGuardHome "-s" "run" "-w" "/opt/AdGuardHome"
-          StandardOutput=file:/opt/AdGuardHome/log/AdGuardHome.out
-          StandardError=file:/opt/AdGuardHome/log/AdGuardHome.err
+          ExecStart={{ adguard_home_bin_path }} "-s" "run" "-w" "{{ adguard_home_folder }}"
+          StandardOutput=append:{{ adguard_home_folder }}/log/AdGuardHome.out
+          StandardError=append:{{ adguard_home_folder }}/log/AdGuardHome.err
           Restart=always
           RestartSec=10
 
@@ -51,3 +106,9 @@
         enabled: yes
         state: started
         daemon_reload: yes
+
+  handlers:
+    - name: Restart AdGuard Home
+      ansible.builtin.systemd:
+        name: AdGuardHome
+        state: restarted

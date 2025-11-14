@@ -20,6 +20,13 @@ services:
       - "8555:8555/udp" # WebRTC over udp
     environment:
       FRIGATE_RTSP_PASSWORD: ${RTSP_PASSWORD}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
     labels:
       - "traefik.enable=true"
 

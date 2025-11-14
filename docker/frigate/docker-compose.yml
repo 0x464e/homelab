@@ -14,7 +14,7 @@ services:
         tmpfs:
           size: 1000000000
     ports:
-      - "8971:8971" # API and web UI
+      - "192.168.10.6:8971:8971" # API and web UI
       - "8554:8554" # RTSP feeds
       - "8555:8555/tcp" # WebRTC over tcp
       - "8555:8555/udp" # WebRTC over udp

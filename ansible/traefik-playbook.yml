@@ -72,12 +72,68 @@
         modification_time: preserve
         access_time: preserve
 
-    - name: Download and extract Traefik
+    - name: Check if Traefik binary exists
+      ansible.builtin.stat:
+        path: "{{ traefik_bin_path }}"
+      register: traefik_bin
+
+    - name: Get current Traefik version
+      ansible.builtin.command: "{{ traefik_bin_path }} version"
+      changed_when: false
+      failed_when: false
+      when: traefik_bin.stat.exists
+      register: installed_traefik_version_cmd
+
+    - name: Parse current Traefik version
+      ansible.builtin.set_fact:
+        current_traefik_version: >-
+          {{
+            installed_traefik_version_cmd.stdout
+            | regex_search('Version:\s*([0-9.]+)', '\1')
+            | default(['0.0.0'], true)
+            | first
+          }}
+      when: traefik_bin.stat.exists and installed_traefik_version_cmd.stdout is defined
+
+    - name: Set default version if not installed
+      ansible.builtin.set_fact:
+        current_traefik_version: "0.0.0"
+      when: not traefik_bin.stat.exists
+
+    - name: Get latest Traefik release info
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ traefik_repo }}/releases/latest"
+        return_content: yes
+      register: latest_traefik_release
+
+    - name: Parse latest Traefik version
+      ansible.builtin.set_fact:
+        latest_traefik_version: "{{ latest_traefik_release.json.tag_name | trim('v') }}"
+
+    - name: Detemine if Traefik install or upgrade is needed
+      ansible.builtin.set_fact:
+        traefik_install_needed: "{{ current_traefik_version is version(latest_traefik_version, '<', 'semver') }}"
+
+    - name: Get download URL for latest Traefik binary
+      debugger: always
+      ansible.builtin.set_fact:
+        latest_traefik_download_url: >-
+          {{
+            latest_traefik_release.json.assets
+            | selectattr('name', 'search', 'linux_amd64.tar.gz')
+            | map(attribute='browser_download_url')
+            | first
+          }}
+      when: traefik_install_needed
+
+    - name: Download and extract latest Traefik binary
       ansible.builtin.unarchive:
-        src: "https://github.com/traefik/traefik/releases/download/v3.5.1/traefik_v3.5.1_linux_amd64.tar.gz"
+        src: "{{ latest_traefik_download_url }}"
         include: [ "traefik" ]
         dest: /usr/bin
         remote_src: yes
+      when: traefik_install_needed
+      notify: Restart traefik
 
     - name: Create systemd service
       ansible.builtin.copy:
@@ -85,14 +141,14 @@
         content: |
           [Unit]
           Description=Traefik: The Cloud Native Edge Router
-          ConditionFileIsExecutable=/usr/bin/traefik
+          ConditionFileIsExecutable={{ traefik_bin_path }}
           After=syslog.target network-online.target
 
           [Service]
           Type=notify
           StartLimitInterval=5
           StartLimitBurst=10
-          ExecStart=/usr/bin/traefik
+          ExecStart={{ traefik_bin_path }}
           StandardOutput=file:{{ traefik_folder }}/log/traefik.out
           StandardError=file:{{ traefik_folder }}/log/traefik.err
           Restart=always
@@ -144,11 +200,6 @@
           }}
       when: tos_bin.stat.exists and installed_tos_version_cmd.stdout is defined
 
-    - name: Debug current traefik-opnsense-sync version
-      ansible.builtin.debug:
-        msg: "Current traefik-opnsense-sync version: {{ current_tos_version }}"
-      when: tos_bin.stat.exists
-
     - name: Set default version if not installed
       ansible.builtin.set_fact:
         current_tos_version: "0.0.0"
@@ -164,7 +215,7 @@
       ansible.builtin.set_fact:
         latest_tos_version: "{{ latest_tos_release.json.tag_name | trim('v') }}"
 
-    - name: Detemine if install or upgrade is needed
+    - name: Detemine if traefik-opnsense-sync install or upgrade is needed
       ansible.builtin.set_fact:
         tos_install_needed: "{{ current_tos_version is version(latest_tos_version, '<', 'semver') }}"
 

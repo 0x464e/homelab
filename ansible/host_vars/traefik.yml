@@ -1,5 +1,9 @@
-traefik_folder: "/etc/traefik"
 git_repo_url: "https://github.com/0x464e/homelab.git"
+
+traefik_repo: "traefik/traefik"
+traefik_folder: "/etc/traefik"
+traefik_bin_path: "/usr/bin/traefik"
+
 domain: "ottos.party"
 domain_regex: '^.*\.ottos\.party(.*)$'
 

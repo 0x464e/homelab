@@ -1,7 +1,6 @@
 services:
   frigate:
     container_name: frigate
-    user: 2002:2002
     restart: unless-stopped
     stop_grace_period: 30s
     image: ghcr.io/blakeblackshear/frigate:stable-tensorrt

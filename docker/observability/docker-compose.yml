@@ -4,6 +4,7 @@ services:
   grafana:
     image: grafana/grafana-enterprise
     container_name: grafana
+    user: 1000:1000
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}

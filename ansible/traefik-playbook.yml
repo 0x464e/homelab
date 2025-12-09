@@ -115,7 +115,6 @@
         traefik_install_needed: "{{ current_traefik_version is version(latest_traefik_version, '<', 'semver') }}"
 
     - name: Get download URL for latest Traefik binary
-      debugger: always
       ansible.builtin.set_fact:
         latest_traefik_download_url: >-
           {{
@@ -149,8 +148,8 @@
           StartLimitInterval=5
           StartLimitBurst=10
           ExecStart={{ traefik_bin_path }}
-          StandardOutput=file:{{ traefik_folder }}/log/traefik.out
-          StandardError=file:{{ traefik_folder }}/log/traefik.err
+          StandardOutput=append:{{ traefik_folder }}/log/traefik.out
+          StandardError=append:{{ traefik_folder }}/log/traefik.err
           Restart=always
           RestartSec=10
           ExecReload=/bin/kill -USR1 $MAINPID

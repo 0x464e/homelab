@@ -70,5 +70,5 @@
 
 # TODO:
 # Run
-# tailscale up --advertise-routes=192.168.10.0/24 --advertise-connector --ssh
+# tailscale up --advertise-routes=192.168.10.0/24
 # for initial setup

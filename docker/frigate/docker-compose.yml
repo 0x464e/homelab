@@ -36,6 +36,7 @@ services:
       # main route
       - "traefik.http.routers.frigate.rule=Host(`frigate.ottos.party`)"
       - "traefik.http.routers.frigate.entrypoints=lan-https"
+      - "traefik.http.routers.frigate.middlewares=authentik-forward-auth"
       - "traefik.http.services.frigate.loadbalancer.server.port=8971"
 
       # aliases route

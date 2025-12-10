@@ -19,6 +19,7 @@ services:
       - "8555:8555/tcp" # WebRTC over tcp
       - "8555:8555/udp" # WebRTC over udp
       - "1984:1984" # go2rtc
+      - "5000:5000" # Unauthenticated API for integrating services, firewalled carefully
     environment:
       FRIGATE_TERRARIUM_CAM_IP: ${FRIGATE_TERRARIUM_CAM_IP}
       FRIGATE_HTTP_USERNAME: ${FRIGATE_HTTP_USERNAME}
@@ -36,7 +37,7 @@ services:
       # main route
       - "traefik.http.routers.frigate.rule=Host(`frigate.ottos.party`)"
       - "traefik.http.routers.frigate.entrypoints=lan-https"
-      - "traefik.http.routers.frigate.middlewares=authentik-forward-auth@file"
+      - "traefik.http.routers.frigate.middlewares=authentik-forward-auth@file, proxy-secret@file"
       - "traefik.http.services.frigate.loadbalancer.server.port=8971"
 
       # aliases route

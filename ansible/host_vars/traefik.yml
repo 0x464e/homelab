@@ -17,6 +17,8 @@ tos_bin_path: "/usr/bin/traefik-opnsense-sync"
 opnsense_api_key: "key"
 opnsense_api_secret: "secret"
 
+proxy_secret: "secret"
+
 proxmox_server_address: "192.168.10.4:8006"
 proxmox_router_address: "192.168.10.3:8006"
 opnsense_address: "192.168.10.1"

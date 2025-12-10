@@ -19,7 +19,7 @@ services:
       - "8555:8555/tcp" # WebRTC over tcp
       - "8555:8555/udp" # WebRTC over udp
       - "1984:1984" # go2rtc
-      - "5000:5000" # Unauthenticated API for integrating services, firewalled carefully
+      - "192.168.10.6:5000:5000" # Unauthenticated API for integrating services, firewalled carefully
     environment:
       FRIGATE_TERRARIUM_CAM_IP: ${FRIGATE_TERRARIUM_CAM_IP}
       FRIGATE_HTTP_USERNAME: ${FRIGATE_HTTP_USERNAME}

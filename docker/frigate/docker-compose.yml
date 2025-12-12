@@ -36,14 +36,14 @@ services:
 
       # main route
       - "traefik.http.routers.frigate.rule=Host(`frigate.ottos.party`)"
-      - "traefik.http.routers.frigate.entrypoints=lan-https"
-      - "traefik.http.routers.frigate.middlewares=authentik-forward-auth@file, proxy-secret@file"
+      - "traefik.http.routers.frigate.entrypoints=lan-https, cf-tunnel"
+      - "traefik.http.routers.frigate.middlewares=cloudflarewarp@file, authentik-forward-auth@file, proxy-secret@file"
       - "traefik.http.services.frigate.loadbalancer.server.port=8971"
 
       # aliases route
       - "traefik.http.routers.frigate-aliases.rule=Host(`nvr.ottos.party`)"
-      - "traefik.http.routers.frigate-aliases.entrypoints=lan-https"
-      - "traefik.http.routers.frigate-aliases.middlewares=frigate-alias-redirect"
+      - "traefik.http.routers.frigate-aliases.entrypoints=lan-https, cf-tunnel"
+      - "traefik.http.routers.frigate-aliases.middlewares=cloudflarewarp@file, frigate-alias-redirect"
       - "traefik.http.routers.frigate-aliases.service=noop@internal"
 
       # alias redirect middleware

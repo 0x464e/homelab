@@ -2,13 +2,16 @@ http:
   routers:
     home-assistant:
       rule: Host(`home-assistant.{{ domain }}`)
-      entryPoints: [ "lan-https" ]
+      entryPoints: [ "lan-https", "cf-tunnel" ]
+      middlewares:
+        - cloudflarewarp
       service: home-assistant
 
     home-assistant-aliases:
       rule: HostRegexp(`(ha|haos|homeassistant)\.{{ domain | regex_escape }}`)
-      entryPoints: [ "lan-https" ]
+      entryPoints: [ "lan-https", "cf-tunnel" ]
       middlewares:
+        - cloudflarewarp
         - home-assistant-alias-redirect
       service: noop@internal
 

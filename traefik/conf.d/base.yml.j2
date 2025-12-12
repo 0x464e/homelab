@@ -5,6 +5,15 @@ http:
       entryPoints: [ "lan-https" ]
       service: api@internal
 
+  middlewares:
+    cloudflarewarp:
+      plugin:
+        cloudflarewarp:
+          disableDefault: true
+          trustip:
+            - "{{ cloudflared_address }}/32"
+
+
 tls:
   options:
     default:

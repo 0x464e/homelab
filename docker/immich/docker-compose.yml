@@ -31,11 +31,12 @@ services:
       # main route
       - "traefik.http.routers.immich.rule=Host(`photos.ottos.party`)"
       - "traefik.http.routers.immich.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.immich.middlewares=cloudflarewarp@file"
 
       # aliases route
       - "traefik.http.routers.immich-aliases.rule=HostRegexp(`(immich|gallery)\\.ottos\\.party`)"
       - "traefik.http.routers.immich-aliases.entrypoints=lan-https,cf-tunnel"
-      - "traefik.http.routers.immich-aliases.middlewares=immich-alias-redirect"
+      - "traefik.http.routers.immich-aliases.middlewares=cloudflarewarp@file, immich-alias-redirect"
       - "traefik.http.routers.immich-aliases.service=noop@internal"
 
       # alias redirect middleware

@@ -40,11 +40,12 @@ services:
       # main route
       - "traefik.http.routers.authentik.rule=Host(`auth.ottos.party`)"
       - "traefik.http.routers.authentik.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.authentik.middlewares=cloudflarewarp@file"
 
       # aliases route
       - "traefik.http.routers.authentik-aliases.rule=Host(`authentik.ottos.party`)"
       - "traefik.http.routers.authentik-aliases.entrypoints=lan-https,cf-tunnel"
-      - "traefik.http.routers.authentik-aliases.middlewares=authentik-alias-redirect"
+      - "traefik.http.routers.authentik-aliases.middlewares=cloudflarewarp@file, authentik-alias-redirect"
       - "traefik.http.routers.authentik-aliases.service=noop@internal"
 
       # alias redirect middleware

@@ -22,7 +22,7 @@ resource "proxmox_vm_qemu" "truenas" {
   }
 
   cpu {
-    cores = 4
+    cores = 2
     sockets = 1
     numa = false
     type = "host"

@@ -30,7 +30,7 @@ resource "proxmox_vm_qemu" "docker" {
   }
 
   cpu {
-    cores   = 8
+    cores   = 12
     sockets = 1
     numa    = false
     type    = "host"

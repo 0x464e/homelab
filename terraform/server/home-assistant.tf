@@ -6,9 +6,7 @@ resource "proxmox_vm_qemu" "home-assistant" {
   clone = "haos-template"
 
   bios    = "ovmf"
-  onboot  = true
-  startup = "order=3"
-  vm_state = "running"
+  vm_state = "started"
   protection = true
   boot    = "order=scsi0"
   agent   = 1
@@ -18,6 +16,11 @@ resource "proxmox_vm_qemu" "home-assistant" {
   memory  = 4096
   balloon = 4096
   skip_ipv6 = true
+
+
+  startup_shutdown {
+    order = 3
+  }
 
   cpu {
     cores   = 4

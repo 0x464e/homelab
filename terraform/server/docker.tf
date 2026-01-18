@@ -8,8 +8,6 @@ resource "proxmox_vm_qemu" "docker" {
   clone = "debian13-cloudinit"
 
   bios    = "ovmf"
-  onboot  = true
-  startup = "order=2,up=60"
   vm_state = "started"
   protection = true
   boot    = "order=scsi0"
@@ -25,6 +23,11 @@ resource "proxmox_vm_qemu" "docker" {
   nameserver = "192.168.10.1"
   ipconfig0  = "ip=192.168.10.6/24,gw=192.168.10.1"
   cicustom   = "user=local:snippets/${var.docker_vm_hostname}-cloudinit.yaml"
+
+  startup_shutdown {
+    order = 2
+    startup_delay = 30
+  }
 
   cpu {
     cores   = 8

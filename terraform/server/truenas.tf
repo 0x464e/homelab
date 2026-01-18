@@ -4,8 +4,6 @@ resource "proxmox_vm_qemu" "truenas" {
   vmid = 100
 
   bios = "ovmf"
-  onboot = true
-  startup = "order=1,up=120"
   vm_state = "started"
   protection = true
   boot = "order=scsi0;ide2;net0"
@@ -16,6 +14,12 @@ resource "proxmox_vm_qemu" "truenas" {
   memory = 24576
   balloon = 24576
   skip_ipv6 = true
+
+
+  startup_shutdown {
+    order = 1
+    startup_delay = 90
+  }
 
   cpu {
     cores = 4

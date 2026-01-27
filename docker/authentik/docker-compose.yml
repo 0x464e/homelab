@@ -27,12 +27,12 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
       AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:?secret key required}
-    image: ghcr.io/goauthentik/server:2025.10
+    image: ghcr.io/goauthentik/server:2025.12
     ports:
       - "192.168.10.6:9001:9000"
     restart: unless-stopped
     volumes:
-      - /srv/authentik/media:/media
+      - /srv/authentik/data:/data
       - /srv/authentik/custom-templates:/templates
     labels:
       - "traefik.enable=true"
@@ -65,12 +65,12 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
       AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:?secret key required}
-    image: ghcr.io/goauthentik/server:2025.10
+    image: ghcr.io/goauthentik/server:2025.12
     restart: unless-stopped
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /srv/authentik/media:/media
+      - /srv/authentik/data:/data
       - /srv/authentik/certs:/certs
       - /srv/authentik/custom-templates:/templates
 

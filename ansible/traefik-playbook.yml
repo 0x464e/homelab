@@ -42,7 +42,7 @@
             User {{ hostvars['docker-vm']['ansible_user'] }}
             IdentityFile {{ traefik_folder }}/ssh/id_ed25519
             IdentitiesOnly yes
-            StrictHostKeyChecking accept-new
+            StrictHostKeyChecking no
 
     - name: Authorize Traefik public key on Docker VM user
       ansible.builtin.authorized_key:

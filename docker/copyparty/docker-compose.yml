@@ -24,3 +24,24 @@ services:
       timeout: 2s
       retries: 5
       start_period: 15s
+
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+
+      # main route
+      - "traefik.http.routers.copyparty.rule=Host(`files.ottos.party`)"
+      - "traefik.http.routers.copyparty.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.copyparty.middlewares=cloudflarewarp@file"
+
+      # aliases route
+      - "traefik.http.routers.copyparty-aliases.rule=Host(`copyparty.ottos.party`)"
+      - "traefik.http.routers.copyparty-aliases.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.copyparty-aliases.middlewares=cloudflarewarp@file,copyparty-alias-redirect"
+      - "traefik.http.routers.copyparty-aliases.service=noop@internal"
+
+      # alias redirect middleware
+      - "traefik.http.middlewares.copyparty-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
+      - "traefik.http.middlewares.copyparty-alias-redirect.redirectregex.replacement=https://files.ottos.party$1"
+      - "traefik.http.middlewares.copyparty-alias-redirect.redirectregex.permanent=true"

@@ -10,7 +10,7 @@ services:
       - /mnt/share:/w:z
 
     environment:
-      LD_PRELOAD: /usr/lib/libmimalloc-secure.so.NOPE
+      LD_PRELOAD: /usr/lib/libmimalloc-secure.so.2
       # enable mimalloc by replacing "NOPE" with "2" for a nice speed-boost (will use twice as much ram)
 
       PYTHONUNBUFFERED: 1

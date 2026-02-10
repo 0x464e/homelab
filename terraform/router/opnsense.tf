@@ -5,11 +5,9 @@ resource "proxmox_vm_qemu" "opnsense" {
 
   bios = "ovmf"
 
-  onboot = true
-
-  startup = "order=1"
-
   vm_state = "running"
+
+  start_at_node_boot = true
 
   protection = true
 
@@ -25,6 +23,12 @@ resource "proxmox_vm_qemu" "opnsense" {
   balloon = 8192
 
   skip_ipv6 = true
+
+
+  startup_shutdown {
+    order = 1
+    startup_delay = 30
+  }
 
   cpu {
     cores = 4

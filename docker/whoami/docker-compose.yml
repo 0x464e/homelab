@@ -2,6 +2,10 @@ services:
   whoami:
     image: traefik/whoami
     container_name: whoami
+
+    ports:
+      - "192.168.10.6:6767:80"
+
     restart: unless-stopped
 
     labels:

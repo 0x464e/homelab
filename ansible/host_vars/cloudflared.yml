@@ -22,3 +22,5 @@ tunnel_hosts:
 
   - files
   - copyparty
+
+  - whoami

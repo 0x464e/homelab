@@ -1,0 +1,11 @@
+services:
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    restart: unless-stopped
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.ottos.party`)"
+      - "traefik.http.routers.whoami.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.whoami.middlewares=cloudflarewarp@file, authentik-forward-auth@file, proxy-secret@file"

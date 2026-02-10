@@ -8,5 +8,17 @@ tunnel_hosts:
   - photos
   - immich
   - gallery
+
   - auth
   - authentik
+
+  - home-assistant
+  - homeassistant
+  - ha
+  - haos
+
+  - frigate
+  - nvr
+
+  - files
+  - copyparty

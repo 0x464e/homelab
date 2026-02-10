@@ -7,6 +7,7 @@ resource "proxmox_vm_qemu" "home-assistant" {
 
   bios    = "ovmf"
   vm_state = "started"
+  start_at_node_boot = true
   protection = true
   boot    = "order=scsi0"
   agent   = 1

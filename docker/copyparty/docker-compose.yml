@@ -1,6 +1,6 @@
 services:
   copyparty:
-    image: copyparty/dj:latest
+    image: 0x464e/patentparty:dj-latest
     container_name: copyparty
     user: "1000:1000"
     ports:

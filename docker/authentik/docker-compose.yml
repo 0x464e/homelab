@@ -73,8 +73,3 @@ services:
       - /srv/authentik/data:/data
       - /srv/authentik/certs:/certs
       - /srv/authentik/custom-templates:/templates
-
-
-volumes:
-  database:
-    driver: local

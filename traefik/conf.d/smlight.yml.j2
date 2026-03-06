@@ -17,7 +17,7 @@ http:
     # Fix: redirect properly myself before they have a chance to do it wrong
     # I have submitted a bug report
     smlight-sse:
-      rule: Host(`smlight.ottos.party`) && Path(`/events`)
+      rule: Host(`smlight.{{ domain }}`) && Path(`/events`)
       entryPoints: [ "lan-https" ]
       service: smlight-sse
       priority: 1000

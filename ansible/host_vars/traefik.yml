@@ -18,6 +18,7 @@ opnsense_api_key: "key"
 opnsense_api_secret: "secret"
 
 proxy_secret: "secret"
+proxy_secret_header: "secret"
 
 proxmox_server_address: "192.168.10.4:8006"
 proxmox_router_address: "192.168.10.3:8006"

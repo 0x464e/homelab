@@ -24,3 +24,7 @@ http:
         customRequestHeaders:
           X-Proxy-Secret: "{{ proxy_secret }}"
 
+    proxy-secret-header:
+      headers:
+        customRequestHeaders:
+          "{{ proxy_secret_header }}": "hello"

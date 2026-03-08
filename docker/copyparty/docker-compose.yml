@@ -36,7 +36,7 @@ services:
       - "traefik.http.routers.copyparty.middlewares=cloudflarewarp@file,authentik-forward-auth@file,proxy-secret-header@file"
 
       # shares route (for shared links, which are under /shared/) as well as static js/css
-      - "traefik.http.routers.copyparty-shares.rule=Host(`files.ottos.party`) && (PathPrefix(`/shared/`) || PathPrefix(`/.cpr/`))"
+      - "traefik.http.routers.copyparty-shares.rule=Host(`files.ottos.party`) && (PathPrefix(`/shared/`) || PathPrefix(`/.cpr/w/`))"
       - "traefik.http.routers.copyparty-shares.entrypoints=lan-https,cf-tunnel"
       - "traefik.http.routers.copyparty-shares.middlewares=cloudflarewarp@file"
 

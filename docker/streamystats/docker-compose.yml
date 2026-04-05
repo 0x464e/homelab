@@ -24,8 +24,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
     logging: *default-logging
-    networks:
-      - app-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.streamystats.rule=Host(`streamystats.ottos.party`)"
@@ -60,8 +58,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
     logging: *default-logging
-    networks:
-      - app-network
 
   vectorchord:
     image: tensorchord/vchord-postgres:pg17-v0.4.1
@@ -86,11 +82,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    networks:
-      - app-network
 
 volumes:
   vectorchord_data:
-
-networks:
-  app-network:

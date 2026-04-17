@@ -1,0 +1,36 @@
+services:
+  yamtrack:
+    container_name: yamtrack
+    image: ghcr.io/fuzzygrim/yamtrack
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - TZ=Europe/Helsinki
+      - REDIS_URL=redis://redis:6379
+      - TMDB_API=${TMDB_API_KEY}
+      - TMDB_NSFW=True
+      - MAL_NSFW=True
+      - MU_NSFW=True
+      - URLS=https://yamtrack.ottos.party
+      - SECRET=${SECRET}
+      - ADMIN_ENABLED=True
+      - REGISTRATION=False
+    volumes:
+      - /srv/yamtrack/db:/yamtrack/db
+    ports:
+      - "192.168.10.6:8000:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.yamtrack.rule=Host(`yamtrack.ottos.party`)"
+      - "traefik.http.routers.yamtrack.entrypoints=lan-https"
+
+  redis:
+    container_name: yamtrack-redis
+    image: redis:8-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

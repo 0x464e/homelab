@@ -50,3 +50,56 @@ services:
       - "traefik.http.middlewares.frigate-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
       - "traefik.http.middlewares.frigate-alias-redirect.redirectregex.replacement=https://frigate.ottos.party$1"
       - "traefik.http.middlewares.frigate-alias-redirect.redirectregex.permanent=true"
+
+  frigate-timelapse-hls:
+    image: 0x464e/frigate-timelapse-hls
+    container_name: frigate-timelapse-hls
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    ports:
+      - "192.168.10.6:6773:6773"
+    environment:
+      FTHLS_APP_TIMEZONE: Europe/Helsinki
+      FTHLS_APP_READY_BUFFER_SECONDS: "30"
+      FTHLS_APP_LOG_LEVEL: DEBUG
+      FTHLS_APP_RESTART_POLICY: resume
+      FTHLS_CAMERA_NAME: terrarium
+      FTHLS_FRIGATE_BASE_URL: http://frigate:5000
+      FTHLS_FRIGATE_RECORDINGS_ROOT: /media/frigate/recordings
+      FTHLS_TIMELAPSE_TIMELAPSE_SPEED: "288.0"
+      FTHLS_TIMELAPSE_OUTPUT_FPS: "60"
+      FTHLS_TIMELAPSE_HLS_SEGMENT_SECONDS: "2"
+      FTHLS_FFMPEG_BINARY: ffmpeg
+      FTHLS_FFMPEG_VIDEO_CODEC: h264_nvenc
+      FTHLS_FFMPEG_PRESET: p2
+      FTHLS_FFMPEG_PROFILE: main
+      FTHLS_FFMPEG_CUSTOM_INPUT_ARGS: -hwaccel cuda -hwaccel_output_format cuda
+    volumes:
+      - /mnt/nvr/frigate/storage/recordings:/recordings:ro
+      - /mnt/nvr/frigate/storage/timelapses:/output
+      - /srv/frigate-timelapse-hls/data:/data
+
+    labels:
+      - "traefik.enable=true"
+
+      # main route
+      - "traefik.http.routers.frigate-timelapse-hls.rule=Host(`timelapse.frigate.ottos.party`)"
+      - "traefik.http.routers.frigate-timelapse-hls.entrypoints=lan-https, cf-tunnel"
+      - "traefik.http.routers.frigate-timelapse-hls.middlewares=cloudflarewarp@file, authentik-forward-auth@file"
+      -
+      # aliases route
+      - "traefik.http.routers.frigate-timelapse-hls-aliases.rule=Host(`timelapse.nvr.ottos.party`)"
+      - "traefik.http.routers.frigate-timelapse-hls-aliases.entrypoints=lan-https, cf-tunnel"
+      - "traefik.http.routers.frigate-timelapse-hls-aliases.middlewares=cloudflarewarp@file, frigate-timelapse-hls-alias-redirect"
+      - "traefik.http.routers.frigate-timelapse-hls-aliases.service=noop@internal"
+
+      # alias redirect middleware
+      - "traefik.http.middlewares.frigate-timelapse-hls-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
+      - "traefik.http.middlewares.frigate-timelapse-hls-alias-redirect.redirectregex.replacement=https://timelapse.frigate.ottos.party$1"
+      - "traefik.http.middlewares.frigate-timelapse-hls-alias-redirect.redirectregex.permanent=true"

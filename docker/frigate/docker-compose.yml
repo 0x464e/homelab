@@ -91,17 +91,6 @@ services:
       - "traefik.enable=true"
 
       # main route
-      - "traefik.http.routers.frigate-timelapse-hls.rule=Host(`timelapse.frigate.ottos.party`)"
+      - "traefik.http.routers.frigate-timelapse-hls.rule=Host(`timelapse.ottos.party`)"
       - "traefik.http.routers.frigate-timelapse-hls.entrypoints=lan-https, cf-tunnel"
       - "traefik.http.routers.frigate-timelapse-hls.middlewares=cloudflarewarp@file, authentik-forward-auth@file"
-
-      # aliases route
-      - "traefik.http.routers.frigate-timelapse-hls-aliases.rule=Host(`timelapse.nvr.ottos.party`)"
-      - "traefik.http.routers.frigate-timelapse-hls-aliases.entrypoints=lan-https, cf-tunnel"
-      - "traefik.http.routers.frigate-timelapse-hls-aliases.middlewares=cloudflarewarp@file, frigate-timelapse-hls-alias-redirect"
-      - "traefik.http.routers.frigate-timelapse-hls-aliases.service=noop@internal"
-
-      # alias redirect middleware
-      - "traefik.http.middlewares.frigate-timelapse-hls-alias-redirect.redirectregex.regex=^.*\\.ottos\\.party(.*)$"
-      - "traefik.http.middlewares.frigate-timelapse-hls-alias-redirect.redirectregex.replacement=https://timelapse.frigate.ottos.party$1"
-      - "traefik.http.middlewares.frigate-timelapse-hls-alias-redirect.redirectregex.permanent=true"

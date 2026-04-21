@@ -24,3 +24,5 @@ tunnel_hosts:
   - copyparty
 
   - whoami
+
+  - timelapse

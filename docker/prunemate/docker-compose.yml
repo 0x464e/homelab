@@ -1,0 +1,18 @@
+services:
+  prunemate:
+    image: anoniemerd/prunemate:latest  # Supports amd64 and arm64
+    container_name: prunemate
+    ports:
+      - "192.168.10.6:7676:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/prunemate/logs:/var/log
+      - /srv/prunemate/config:/config
+    environment:
+      - PRUNEMATE_TZ=Europe/Helsinki
+      - PRUNEMATE_TIME_24H=true
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prunemate.rule=Host(`prunemate.ottos.party`)"
+      - "traefik.http.routers.prunemate.entrypoints=lan-https"

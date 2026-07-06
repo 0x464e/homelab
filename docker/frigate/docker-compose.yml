@@ -3,7 +3,7 @@ services:
     container_name: frigate
     restart: unless-stopped
     stop_grace_period: 30s
-    image: ghcr.io/blakeblackshear/frigate:1f154a0-tensorrt
+    image: ghcr.io/blakeblackshear/frigate:4e65cc1-tensorrt
     shm_size: "256mb"
     volumes:
       - /etc/localtime:/etc/localtime:ro

@@ -1,0 +1,29 @@
+http:
+  routers:
+    authentik:
+      rule: Host(`auth.{{ domain }}`)
+      entryPoints: [ "lan-https", "cf-tunnel" ]
+      middlewares:
+        - cloudflarewarp
+      service: authentik
+
+    authentik-aliases:
+      rule: Host(`authentik.{{ domain }}`)
+      entryPoints: [ "lan-https", "cf-tunnel" ]
+      middlewares:
+        - cloudflarewarp
+        - authentik-alias-redirect
+      service: noop@internal
+
+  middlewares:
+    authentik-alias-redirect:
+      redirectRegex:
+        regex: '{{ domain_regex }}'
+        replacement: "https://auth.{{ domain }}$1"
+        permanent: true
+
+  services:
+    authentik:
+      loadBalancer:
+        servers:
+          - url: "http://{{ authentik_address }}"

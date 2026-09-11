@@ -1,0 +1,15 @@
+services:
+  redroid:
+    image: redroid/redroid:12.0.0_64only-latest
+    container_name: redroid
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    volumes:
+      - /srv/redroid/data:/data
+      - /dev/binder:/dev/binder
+      - /dev/hwbinder:/dev/hwbinder
+      - /dev/vndbinder:/dev/vndbinder
+    command:
+      - androidboot.use_memfd=1

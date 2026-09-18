@@ -10,6 +10,7 @@ services:
     user: 2000:2000
     volumes:
       - ${UPLOAD_LOCATION}:/data
+      - ${UPLOAD_LOCATION}/familybridge-recipients:/familybridge-recipients:ro
       - /etc/localtime:/etc/localtime:ro
     environment: # stupid portainer workaround for env_file being impossible for gitops
       - UPLOAD_LOCATION=${UPLOAD_LOCATION}

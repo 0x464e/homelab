@@ -1,0 +1,29 @@
+family_id: otto-jasmin
+immich_url: http://immich-server:2283/api
+admin_key_env: IMMICH_LIBRARY_ADMIN_KEY
+
+source_root: /media
+source_mappings:
+  - immich_root: /data/library
+    local_root: /media/library
+  - immich_root: /data/upload
+    local_root: /media/upload
+  - immich_root: /data/encoded-video
+    local_root: /media/encoded-video
+bridge_root: /media/familybridge-recipients
+immich_bridge_root: /familybridge-recipients
+
+database: /state/bridge.sqlite
+listen: 0.0.0.0:6773
+api_token_env: FAMILYBRIDGE_API_TOKEN
+poll_interval: 30s
+
+members:
+  - id: otto
+    user_id: de4d01fa-4967-490e-b945-de54ced4c6f9
+    library_id: 936a6c3e-288d-4dfb-8ff2-2736e86c278b
+    key_env: IMMICH_MEMBER_1_KEY
+  - id: jasmin
+    user_id: 59a79b62-cd95-4e99-a79b-1c220bc0bd90
+    library_id: 93ccecf0-257c-4d5a-b319-8bd0112cab53
+    key_env: IMMICH_MEMBER_2_KEY

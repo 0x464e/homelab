@@ -99,6 +99,34 @@ services:
       - "traefik.http.routers.immich-pgadmin.rule=Host(`immich-pgadmin.ottos.party`)"
       - "traefik.http.routers.immich-pgadmin.entrypoints=lan-https"
 
+  family-bridge:
+    image: 0x464e/immich-family-bridge:0.4.0
+    user: "${FAMILYBRIDGE_UID:-1000}:${FAMILYBRIDGE_GID:-1000}"
+    read_only: true
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      FAMILYBRIDGE_DRY_RUN: true
+      FAMILYBRIDGE_API_TOKEN: ${FAMILYBRIDGE_API_TOKEN:?Set a private bridge API token}
+      IMMICH_LIBRARY_ADMIN_KEY: ${IMMICH_LIBRARY_ADMIN_KEY:?Set an admin key with library read/update scopes}
+      IMMICH_MEMBER_1_KEY: ${IMMICH_MEMBER_1_KEY:?Set the first family member's bridge API key}
+      IMMICH_MEMBER_2_KEY: ${IMMICH_MEMBER_2_KEY:?Set the second family member's bridge API key}
+    volumes:
+      - ./familybridge.config.yaml:/etc/familybridge/config.yaml:ro
+      - ${UPLOAD_LOCATION}:/media:ro
+      - /srv/immich/familybridge-state:/state
+    ports:
+      - "127.0.0.1:${FAMILYBRIDGE_PORT:-6773}:6773"
+    depends_on:
+      - immich-server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:6773/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
 volumes:
   model-cache:
   immich-pgadmin-data:

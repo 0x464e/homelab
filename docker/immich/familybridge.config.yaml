@@ -1,4 +1,5 @@
 family_id: otto-jasmin
+together_album_name: Yhteiset
 immich_url: http://immich-server:2283/api
 admin_key_env: IMMICH_LIBRARY_ADMIN_KEY
 

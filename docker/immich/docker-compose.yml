@@ -100,21 +100,22 @@ services:
       - "traefik.http.routers.immich-pgadmin.entrypoints=lan-https"
 
   family-bridge:
-    image: 0x464e/immich-family-bridge:0.4.0
+    image: 0x464e/immich-family-bridge:0.4.1
+    container_name: immich-family-bridge
     user: "${FAMILYBRIDGE_UID:-1000}:${FAMILYBRIDGE_GID:-1000}"
     read_only: true
     init: true
     security_opt:
       - no-new-privileges:true
     environment:
-      FAMILYBRIDGE_DRY_RUN: true
+      FAMILYBRIDGE_DRY_RUN: false
       FAMILYBRIDGE_API_TOKEN: ${FAMILYBRIDGE_API_TOKEN:?Set a private bridge API token}
       IMMICH_LIBRARY_ADMIN_KEY: ${IMMICH_LIBRARY_ADMIN_KEY:?Set an admin key with library read/update scopes}
       IMMICH_MEMBER_1_KEY: ${IMMICH_MEMBER_1_KEY:?Set the first family member's bridge API key}
       IMMICH_MEMBER_2_KEY: ${IMMICH_MEMBER_2_KEY:?Set the second family member's bridge API key}
     volumes:
       - ./familybridge.config.yaml:/etc/familybridge/config.yaml:ro
-      - ${UPLOAD_LOCATION}:/media:ro
+      - ${UPLOAD_LOCATION}:/media:rw
       - /srv/immich/familybridge-state:/state
     ports:
       - "127.0.0.1:${FAMILYBRIDGE_PORT:-6773}:6773"

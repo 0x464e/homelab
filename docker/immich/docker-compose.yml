@@ -35,6 +35,16 @@ services:
       - "traefik.http.routers.immich.entrypoints=lan-https,cf-tunnel"
       - "traefik.http.routers.immich.middlewares=cloudflarewarp@file"
 
+      # immich-family-bridge photo/album link redirecting for shared assets
+      - "traefik.http.routers.immich-link-resolver.rule=Host(`photos.ottos.party`) && (Method(`GET`) || Method(`HEAD`)) && PathRegexp(`^/(photos|albums)/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)"
+      - "traefik.http.routers.immich-link-resolver.priority=100"
+      - "traefik.http.routers.immich-link-resolver.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.immich-link-resolver.middlewares=cloudflarewarp@file, immich-link-resolver"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.address=http://familybridge:${FAMILYBRIDGE_FORWARDAUTH_TOKEN}@192.168.10.6:${FAMILYBRIDGE_PORT:-6773}/forward-auth"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.trustforwardheader=false"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.preservelocationheader=true"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.authrequestheaders=Cookie"
+
       # aliases route
       - "traefik.http.routers.immich-aliases.rule=HostRegexp(`(immich|gallery)\\.ottos\\.party`)"
       - "traefik.http.routers.immich-aliases.entrypoints=lan-https,cf-tunnel"
@@ -100,7 +110,7 @@ services:
       - "traefik.http.routers.immich-pgadmin.entrypoints=lan-https"
 
   family-bridge:
-    image: 0x464e/immich-family-bridge:0.4.9
+    image: 0x464e/immich-family-bridge
     container_name: immich-family-bridge
     user: "${FAMILYBRIDGE_UID:-1000}:${FAMILYBRIDGE_GID:-1000}"
     read_only: true
@@ -110,6 +120,7 @@ services:
     environment:
       FAMILYBRIDGE_DRY_RUN: false
       FAMILYBRIDGE_API_TOKEN: ${FAMILYBRIDGE_API_TOKEN:?Set a private bridge API token}
+      FAMILYBRIDGE_FORWARDAUTH_TOKEN: ${FAMILYBRIDGE_FORWARDAUTH_TOKEN:?Set a separate URL-safe ForwardAuth token}
       IMMICH_LIBRARY_ADMIN_KEY: ${IMMICH_LIBRARY_ADMIN_KEY:?Set an admin key with library read/update scopes}
       IMMICH_MEMBER_1_KEY: ${IMMICH_MEMBER_1_KEY:?Set the first family member's bridge API key}
       IMMICH_MEMBER_2_KEY: ${IMMICH_MEMBER_2_KEY:?Set the second family member's bridge API key}
@@ -118,7 +129,7 @@ services:
       - ${UPLOAD_LOCATION}:/media:rw
       - /srv/immich/familybridge-state:/state
     ports:
-      - "127.0.0.1:${FAMILYBRIDGE_PORT:-6773}:6773"
+      - "192.168.10.6:${FAMILYBRIDGE_PORT:-6773}:6773"
     depends_on:
       - immich-server
     restart: unless-stopped

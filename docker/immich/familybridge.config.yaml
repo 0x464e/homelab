@@ -17,6 +17,7 @@ immich_bridge_root: /familybridge-recipients
 database: /state/bridge.sqlite
 listen: 0.0.0.0:6773
 api_token_env: FAMILYBRIDGE_API_TOKEN
+forward_auth_token_env: FAMILYBRIDGE_FORWARDAUTH_TOKEN
 poll_interval: 30s
 remove_unshared_replicas: true
 

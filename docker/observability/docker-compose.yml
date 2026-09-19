@@ -60,3 +60,15 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.ottos.party`)"
       - "traefik.http.routers.prometheus.entrypoints=lan-https"
+
+  graphite-exporter:
+    image: prom/graphite-exporter
+    container_name: graphite-exporter
+    restart: unless-stopped
+    command:
+      - --graphite.mapping-config=/etc/graphite-exporter/mapping.yml
+    ports:
+      - "9109:9109"
+      - "9109:9109/udp"
+    volumes:
+      - ./graphite_mapping.yml:/etc/graphite-exporter/mapping.yml:ro

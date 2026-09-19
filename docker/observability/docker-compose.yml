@@ -46,3 +46,17 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.influxdb.rule=Host(`influxdb.ottos.party`)"
       - "traefik.http.routers.influxdb.entrypoints=lan-https"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "192.168.10.6:9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /srv/prometheus:/prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.ottos.party`)"
+      - "traefik.http.routers.prometheus.entrypoints=lan-https"

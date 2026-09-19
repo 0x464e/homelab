@@ -100,7 +100,7 @@ services:
       - "traefik.http.routers.immich-pgadmin.entrypoints=lan-https"
 
   family-bridge:
-    image: 0x464e/immich-family-bridge:0.4.6
+    image: 0x464e/immich-family-bridge:0.4.7
     container_name: immich-family-bridge
     user: "${FAMILYBRIDGE_UID:-1000}:${FAMILYBRIDGE_GID:-1000}"
     read_only: true

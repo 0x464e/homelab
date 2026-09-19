@@ -51,6 +51,11 @@ services:
     image: prom/prometheus
     container_name: prometheus
     restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-admin-api
+      - --web.enable-lifecycle
     ports:
       - "192.168.10.6:9090:9090"
     volumes:

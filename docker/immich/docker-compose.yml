@@ -36,14 +36,14 @@ services:
       - "traefik.http.routers.immich.middlewares=cloudflarewarp@file"
 
       # immich-family-bridge photo/album link redirecting for shared assets
-#      - "traefik.http.routers.immich-link-resolver.rule=Host(`photos.ottos.party`) && (Method(`GET`) || Method(`HEAD`)) && PathRegexp(`^/(photos|albums)/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)"
-#      - "traefik.http.routers.immich-link-resolver.priority=100"
-#      - "traefik.http.routers.immich-link-resolver.entrypoints=lan-https,cf-tunnel"
-#      - "traefik.http.routers.immich-link-resolver.middlewares=cloudflarewarp@file, immich-link-resolver"
-#      - "traefik.http.middlewares.immich-link-resolver.forwardauth.address=http://familybridge:${FAMILYBRIDGE_FORWARDAUTH_TOKEN}@192.168.10.6:${FAMILYBRIDGE_PORT:-6773}/forward-auth"
-#      - "traefik.http.middlewares.immich-link-resolver.forwardauth.trustforwardheader=false"
-#      - "traefik.http.middlewares.immich-link-resolver.forwardauth.preservelocationheader=true"
-#      - "traefik.http.middlewares.immich-link-resolver.forwardauth.authrequestheaders=Cookie"
+      - "traefik.http.routers.immich-link-resolver.rule=Host(`photos.ottos.party`) && (Method(`GET`) || Method(`HEAD`)) && PathRegexp(`^/(photos|albums)/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)"
+      - "traefik.http.routers.immich-link-resolver.priority=100"
+      - "traefik.http.routers.immich-link-resolver.entrypoints=lan-https,cf-tunnel"
+      - "traefik.http.routers.immich-link-resolver.middlewares=cloudflarewarp@file, immich-link-resolver"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.address=http://familybridge:${FAMILYBRIDGE_FORWARDAUTH_TOKEN}@192.168.10.6:${FAMILYBRIDGE_PORT:-6773}/forward-auth"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.trustforwardheader=false"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.preservelocationheader=true"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.authrequestheaders=Cookie"
 
       # aliases route
       - "traefik.http.routers.immich-aliases.rule=HostRegexp(`(immich|gallery)\\.ottos\\.party`)"

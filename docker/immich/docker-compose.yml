@@ -12,6 +12,7 @@ services:
       - ${UPLOAD_LOCATION}:/data
       - ${UPLOAD_LOCATION}/familybridge-recipients:/familybridge-recipients:ro
       - /etc/localtime:/etc/localtime:ro
+      - /srv/immich-dng-extended/dng-libs:/opt/dng/lib:ro
     environment: # stupid portainer workaround for env_file being impossible for gitops
       - UPLOAD_LOCATION=${UPLOAD_LOCATION}
       - DB_DATA_LOCATION=${DB_DATA_LOCATION}
@@ -21,6 +22,7 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_DATABASE_NAME=${DB_DATABASE_NAME}
       - IMMICH_HELMET_FILE=true
+      - LD_LIBRARY_PATH=/opt/dng/lib:/usr/lib/wsl/lib
     ports:
       - "192.168.10.6:2283:2283"
     depends_on:

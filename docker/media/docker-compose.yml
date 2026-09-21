@@ -48,6 +48,7 @@ services:
     container_name: sonarr
     environment:
       <<: *common-env
+      SONARR__SERVER__TRUSTEDNETWORKS: "192.168.10.10/32"
     volumes:
       - /srv/sonarr/config:/config
       - /mnt/media:/mnt/media
@@ -65,6 +66,7 @@ services:
     container_name: radarr
     environment:
       <<: *common-env
+      RADARR__SERVER__TRUSTEDNETWORKS: "192.168.10.10/32"
     volumes:
       - /srv/radarr/config:/config
       - /mnt/media:/mnt/media

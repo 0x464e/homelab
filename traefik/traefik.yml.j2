@@ -2,11 +2,29 @@ entryPoints:
   cf-tunnel:
     address: ":8443"
     http:
+      aliasHeadersStrategy: delete
+      encodedCharacters:
+        allowEncodedSlash: false
+        allowEncodedBackSlash: false
+        allowEncodedNullCharacter: false
+        allowEncodedSemicolon: false
+        allowEncodedPercent: false
+        allowEncodedQuestionMark: false
+        allowEncodedHash: false
       tls:
         options: default
   lan-http:
     address: ":80"
     http:
+      aliasHeadersStrategy: delete
+      encodedCharacters:
+        allowEncodedSlash: false
+        allowEncodedBackSlash: false
+        allowEncodedNullCharacter: false
+        allowEncodedSemicolon: false
+        allowEncodedPercent: false
+        allowEncodedQuestionMark: false
+        allowEncodedHash: false
       redirections:
         entryPoint:
           to: lan-https
@@ -14,6 +32,15 @@ entryPoints:
   lan-https:
     address: ":443"
     http:
+      aliasHeadersStrategy: delete
+      encodedCharacters:
+        allowEncodedSlash: false
+        allowEncodedBackSlash: false
+        allowEncodedNullCharacter: false
+        allowEncodedSemicolon: false
+        allowEncodedPercent: false
+        allowEncodedQuestionMark: false
+        allowEncodedHash: false
       tls:
         options: default
 
@@ -69,4 +96,3 @@ accessLog:
       defaultMode: drop
       names:
         User-Agent: keep
-

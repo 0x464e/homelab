@@ -46,6 +46,7 @@ services:
       - "traefik.http.middlewares.immich-link-resolver.forwardauth.trustforwardheader=false"
       - "traefik.http.middlewares.immich-link-resolver.forwardauth.preservelocationheader=true"
       - "traefik.http.middlewares.immich-link-resolver.forwardauth.authrequestheaders=Cookie"
+      - "traefik.http.middlewares.immich-link-resolver.forwardauth.maxresponsebodysize=1048576"
 
       # aliases route
       - "traefik.http.routers.immich-aliases.rule=HostRegexp(`(immich|gallery)\\.ottos\\.party`)"

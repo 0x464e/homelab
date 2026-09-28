@@ -1,0 +1,70 @@
+name: redroid-gphotos
+
+services:
+  redroid-keeper:
+    image: ghcr.io/0x464e/redroid-keeper
+    container_name: redroid-keeper
+    restart: unless-stopped
+    init: true
+    user: "${KEEPER_UID:-1000}:${KEEPER_GID:-1001}"
+    group_add:
+      - "${DOCKER_GID:-1000}"
+      - "${IMMICH_MEDIA_GID:-2000}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+    environment:
+      IMMICH_MEMBER_USER1_KEY: "${IMMICH_MEMBER_USER1_KEY}"
+      IMMICH_MEMBER_USER2_KEY: "${IMMICH_MEMBER_USER2_KEY}"
+      DRY_RUN: "${DRY_RUN:-false}"
+      SCHEDULE_CRON: "${SCHEDULE_CRON:-}"
+      TZ: "${TZ:-Europe/Helsinki}"
+      MAX_ASSETS_PER_RUN: "${MAX_ASSETS_PER_RUN:-100}"
+      MAX_BATCH_BYTES: "${MAX_BATCH_BYTES:-16G}"
+      MIN_WORK_FREE_BYTES: "${MIN_WORK_FREE_BYTES:-2G}"
+      MIN_ANDROID_FREE_BYTES: "${MIN_ANDROID_FREE_BYTES:-1G}"
+      BOOT_TIMEOUT_SECONDS: "${BOOT_TIMEOUT_SECONDS:-300}"
+      UPLOAD_TIMEOUT_SECONDS: "${UPLOAD_TIMEOUT_SECONDS:-21600}"
+      VERDICT_POLL_SECONDS: "${VERDICT_POLL_SECONDS:-5}"
+      VERDICT_STABILITY_SECONDS: "${VERDICT_STABILITY_SECONDS:-10}"
+      EXPECTED_ANDROID_VERSION: "${EXPECTED_ANDROID_VERSION:-12}"
+      EXPECTED_PHOTOS_PACKAGE: "${EXPECTED_PHOTOS_PACKAGE:-app.morphe.android.apps.photos}"
+      EXPECTED_PHOTOS_VERSION_CODE: "${EXPECTED_PHOTOS_VERSION_CODE:-51832844}"
+      EXPECTED_PHOTOS_DB_SCHEMA: "${EXPECTED_PHOTOS_DB_SCHEMA:-35}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/redroid-gphotos/state:/app/state
+      - /srv/redroid-gphotos/work:/app/work
+      - type: bind
+        source: ./redroid-keeper-destinations.yml
+        target: /app/destinations.yml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /mnt/immich
+        target: /mnt/immich
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - keeper
+    healthcheck:
+      test: [CMD, redroid-keeper, health]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+
+networks:
+  keeper:
+    name: redroid-gphotos-keeper
+    driver: bridge

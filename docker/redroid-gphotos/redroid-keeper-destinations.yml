@@ -1,0 +1,23 @@
+immich:
+  url: https://photos.ottos.party
+  mount_root: /mnt/immich
+  original_path_prefix: /data
+
+redroid:
+  image: redroid/redroid:12.0.0_64only-latest@sha256:a6c464bbedcf1dcb67dbf91f329fbb19bee5b50631f0ca6bda6ed7c41b0e64e2
+  network: redroid-gphotos-keeper
+
+users:
+  - id: otto
+    immich_owner_id: de4d01fa-4967-490e-b945-de54ced4c6f9
+    key_env: IMMICH_MEMBER_USER1_KEY
+    redroid_data_dir: /srv/redroid-gphotos/android/otto
+    adb_bind_address: 192.168.10.6
+    adb_port: 5555
+
+  - id: jasmin
+    immich_owner_id: 59a79b62-cd95-4e99-a79b-1c220bc0bd90
+    key_env: IMMICH_MEMBER_USER2_KEY
+    redroid_data_dir: /srv/redroid-gphotos/android/jasmin
+    adb_bind_address: 192.168.10.6
+    adb_port: 5556

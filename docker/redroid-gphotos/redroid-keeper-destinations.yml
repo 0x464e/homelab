@@ -4,7 +4,7 @@ immich:
   original_path_prefix: /data
 
 redroid:
-  image: redroid/redroid:12.0.0_64only-latest@sha256:a6c464bbedcf1dcb67dbf91f329fbb19bee5b50631f0ca6bda6ed7c41b0e64e2
+  image: redroid/redroid:13.0.0_64only-latest@sha256:5a42a569ee1d7c71796c0385e906cbaa4c3e0a162a56d9f26b29bdb1befac13b
   network: redroid-gphotos-keeper
 
 users:

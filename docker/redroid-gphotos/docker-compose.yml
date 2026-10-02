@@ -5,6 +5,7 @@ services:
     image: ghcr.io/0x464e/redroid-keeper
     container_name: redroid-keeper
     restart: unless-stopped
+    stop_grace_period: 2m
     init: true
     user: "${KEEPER_UID:-1000}:${KEEPER_GID:-1001}"
     group_add:
@@ -30,7 +31,7 @@ services:
       UPLOAD_TIMEOUT_SECONDS: "${UPLOAD_TIMEOUT_SECONDS:-21600}"
       VERDICT_POLL_SECONDS: "${VERDICT_POLL_SECONDS:-5}"
       VERDICT_STABILITY_SECONDS: "${VERDICT_STABILITY_SECONDS:-10}"
-      EXPECTED_ANDROID_VERSION: "${EXPECTED_ANDROID_VERSION:-12}"
+      EXPECTED_ANDROID_VERSION: "${EXPECTED_ANDROID_VERSION:-13}"
       EXPECTED_PHOTOS_PACKAGE: "${EXPECTED_PHOTOS_PACKAGE:-app.morphe.android.apps.photos}"
       EXPECTED_PHOTOS_VERSION_CODE: "${EXPECTED_PHOTOS_VERSION_CODE:-51832844}"
       EXPECTED_PHOTOS_DB_SCHEMA: "${EXPECTED_PHOTOS_DB_SCHEMA:-35}"

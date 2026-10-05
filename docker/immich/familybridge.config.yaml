@@ -1,5 +1,6 @@
 family_id: otto-jasmin
 together_album_name: Together
+together_user_id: 3e615518-1760-4178-8662-5e6889f6a008
 immich_url: http://immich-server:2283/api
 admin_key_env: IMMICH_LIBRARY_ADMIN_KEY
 

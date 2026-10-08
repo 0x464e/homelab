@@ -1,4 +1,6 @@
 - hosts: traefik
+  vars:
+    traefik_dynamic_config_templates: "{{ query('ansible.builtin.fileglob', playbook_dir + '/../traefik/conf.d/*.j2') }}"
   tasks:
     - name: Update and upgrade apt packages
       ansible.builtin.apt:
@@ -21,6 +23,7 @@
         path: "{{ item }}"
         state: directory
       loop:
+        - "{{ traefik_folder }}/conf.d"
         - "{{ traefik_folder }}/log"
         - "{{ traefik_folder }}/ssh"
         - "{{ traefik_folder }}/plugins-local"
@@ -75,9 +78,23 @@
     - name: Render dynamic configs
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ traefik_folder }}/conf.d/{{ item | basename | replace('.j2', '') }}"
-      with_fileglob:
-        - "../traefik/conf.d/*.j2"
+        dest: "{{ traefik_folder }}/conf.d/{{ item | basename | splitext | first }}"
+        mode: "0644"
+      loop: "{{ traefik_dynamic_config_templates }}"
+
+    - name: Find obsolete dynamic configs
+      ansible.builtin.find:
+        paths: "{{ traefik_folder }}/conf.d"
+        excludes: "{{ traefik_dynamic_config_templates | map('basename') | map('splitext') | map('first') | list }}"
+      register: traefik_obsolete_dynamic_configs
+
+    - name: Remove obsolete dynamic configs
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ traefik_obsolete_dynamic_configs.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
 
     - name: Ensure acme.json exists and locked down
       ansible.builtin.file:

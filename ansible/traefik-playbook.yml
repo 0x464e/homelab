@@ -11,6 +11,7 @@
           - tar
           - git
           - openssh-client
+          - rsync
           - python3-minimal
           - python3-pip
         state: present
@@ -22,7 +23,21 @@
       loop:
         - "{{ traefik_folder }}/log"
         - "{{ traefik_folder }}/ssh"
+        - "{{ traefik_folder }}/plugins-local"
         - "{{ tos_folder }}"
+
+    - name: Mirror local Traefik plugin sources
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../traefik/plugins-local/src/"
+        dest: "{{ traefik_folder }}/plugins-local/src/"
+        archive: false
+        recursive: true
+        checksum: true
+        perms: true
+        delete: true
+        rsync_opts:
+          - "--chmod=D0755,F0644"
+      notify: Restart traefik
 
     - name: Generate SSH keypair for Traefik → Docker
       community.crypto.openssh_keypair:
@@ -147,7 +162,8 @@
           Type=notify
           StartLimitInterval=5
           StartLimitBurst=10
-          ExecStart={{ traefik_bin_path }}
+          WorkingDirectory={{ traefik_folder }}
+          ExecStart={{ traefik_bin_path }} --configFile={{ traefik_folder }}/traefik.yml
           StandardOutput=append:{{ traefik_folder }}/log/traefik.out
           StandardError=append:{{ traefik_folder }}/log/traefik.err
           Restart=always
@@ -158,6 +174,7 @@
           [Install]
           WantedBy=multi-user.target
       register: traefik_service_config
+      notify: Restart traefik
 
     - name: Reload systemd if traefik service file changed
       ansible.builtin.systemd:

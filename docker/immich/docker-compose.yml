@@ -99,6 +99,8 @@ services:
     restart: always
 
   pgadmin:
+    profiles: [manual]
+    restart: "no"
     image: dpage/pgadmin4
     container_name: immich_pgadmin
     ports:

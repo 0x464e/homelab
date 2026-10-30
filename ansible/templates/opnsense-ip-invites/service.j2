@@ -1,0 +1,32 @@
+[Unit]
+Description=Self-service IP invitations for OPNsense
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ip-invites
+Group=ip-invites
+Environment="OPNSENSE_API_KEY_FILE={{ ip_invites_config_folder }}/secrets/api-key"
+Environment="OPNSENSE_API_SECRET_FILE={{ ip_invites_config_folder }}/secrets/api-secret"
+Environment="INVITES_ADMIN_PROXY_SECRET_FILE={{ ip_invites_config_folder }}/secrets/admin-proxy-secret"
+ExecStart={{ ip_invites_bin_path }} -config {{ ip_invites_config_folder }}/config.yaml
+StateDirectory=opnsense-ip-invites
+StateDirectoryMode=0700
+WorkingDirectory={{ ip_invites_state_folder }}
+UMask=0077
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictSUIDSGID=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

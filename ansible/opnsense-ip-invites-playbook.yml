@@ -1,0 +1,139 @@
+- hosts: ip-invites
+  tasks:
+    - name: Update and upgrade apt packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Ensure dependencies
+      ansible.builtin.apt:
+        name:
+          - tar
+          - ca-certificates
+        state: present
+
+    - name: Create application group
+      ansible.builtin.group:
+        name: ip-invites
+        system: yes
+
+    - name: Create application user
+      ansible.builtin.user:
+        name: ip-invites
+        group: ip-invites
+        system: yes
+        create_home: no
+        shell: /usr/sbin/nologin
+
+    - name: Create application directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: ip-invites
+        mode: "0750"
+      loop:
+        - "{{ ip_invites_config_folder }}"
+        - "{{ ip_invites_config_folder }}/secrets"
+
+    - name: Check if application binary exists
+      ansible.builtin.stat:
+        path: "{{ ip_invites_bin_path }}"
+      register: ip_invites_bin
+
+    - name: Get current application version
+      ansible.builtin.command: "{{ ip_invites_bin_path }} -version"
+      changed_when: false
+      failed_when: false
+      when: ip_invites_bin.stat.exists
+      register: installed_ip_invites_version_cmd
+
+    - name: Parse current application version
+      ansible.builtin.set_fact:
+        current_ip_invites_version: "{{ installed_ip_invites_version_cmd.stdout | trim }}"
+      when: ip_invites_bin.stat.exists and installed_ip_invites_version_cmd.stdout is defined
+
+    - name: Set default version if not installed
+      ansible.builtin.set_fact:
+        current_ip_invites_version: "0.0.0"
+      when: not ip_invites_bin.stat.exists
+
+    - name: Get latest application release info
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ ip_invites_repo }}/releases/latest"
+        return_content: yes
+      register: latest_ip_invites_release
+
+    - name: Parse latest application version
+      ansible.builtin.set_fact:
+        latest_ip_invites_version: "{{ latest_ip_invites_release.json.tag_name | trim('v') }}"
+
+    - name: Determine if application install or upgrade is needed
+      ansible.builtin.set_fact:
+        ip_invites_install_needed: "{{ current_ip_invites_version is version(latest_ip_invites_version, '<', 'semver') }}"
+
+    - name: Get download URL for latest application binary
+      ansible.builtin.set_fact:
+        latest_ip_invites_download_url: >-
+          {{
+            latest_ip_invites_release.json.assets
+            | selectattr('name', 'search', 'linux_amd64.tar.gz')
+            | map(attribute='browser_download_url')
+            | first
+          }}
+      when: ip_invites_install_needed
+
+    - name: Download and extract latest application binary
+      ansible.builtin.unarchive:
+        src: "{{ latest_ip_invites_download_url }}"
+        include: ["opnsense-ip-invites_{{ latest_ip_invites_version }}_linux_amd64/opnsense-ip-invites"]
+        dest: "{{ ip_invites_bin_path | dirname }}"
+        remote_src: yes
+        extra_opts: ['--strip-components=1']
+      when: ip_invites_install_needed
+      notify: Restart OPNsense IP Invites
+
+    - name: Render application configuration
+      ansible.builtin.template:
+        src: templates/opnsense-ip-invites/config.yml.j2
+        dest: "{{ ip_invites_config_folder }}/config.yaml"
+        owner: root
+        group: ip-invites
+        mode: "0640"
+        validate: "{{ ip_invites_bin_path }} -config %s -check-config"
+      notify: Restart OPNsense IP Invites
+
+    - name: Install application secrets from host variables
+      ansible.builtin.copy:
+        dest: "{{ ip_invites_config_folder }}/secrets/{{ item.name }}"
+        content: "{{ item.value }}"
+        owner: root
+        group: ip-invites
+        mode: "0640"
+      loop:
+        - {name: api-key, value: "{{ ip_invites_api_key }}"}
+        - {name: api-secret, value: "{{ ip_invites_api_secret }}"}
+        - {name: admin-proxy-secret, value: "{{ ip_invites_admin_proxy_secret }}"}
+      no_log: true
+      diff: false
+      notify: Restart OPNsense IP Invites
+
+    - name: Create systemd service
+      ansible.builtin.template:
+        src: templates/opnsense-ip-invites/service.j2
+        dest: /etc/systemd/system/opnsense-ip-invites.service
+        mode: "0644"
+      notify: Restart OPNsense IP Invites
+
+    - name: Reload systemd and enable application
+      ansible.builtin.systemd:
+        name: opnsense-ip-invites
+        enabled: yes
+        state: started
+        daemon_reload: yes
+
+  handlers:
+    - name: Restart OPNsense IP Invites
+      ansible.builtin.systemd:
+        name: opnsense-ip-invites
+        state: restarted

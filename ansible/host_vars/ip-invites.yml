@@ -1,0 +1,17 @@
+ip_invites_repo: "0x464e/opnsense-ip-invites"
+ip_invites_bin_path: /usr/local/bin/opnsense-ip-invites
+ip_invites_config_folder: /etc/ip-invites
+ip_invites_state_folder: /var/lib/opnsense-ip-invites
+ip_invites_port: 6767
+ip_invites_public_url: "https://access.{{ hostvars['traefik']['domain'] }}"
+
+ip_invites_admin_proxy_secret: "secret"
+ip_invites_api_key: "secret"
+ip_invites_api_secret: "secret"
+
+ip_invites_opnsense_url: "https://opnsense.{{ hostvars['traefik']['domain'] }}"
+ip_invites_opnsense_ca_file: ""
+ip_invites_defaults:
+  link_validity: "1h"
+  access_duration: "24h"
+  max_ips: 0

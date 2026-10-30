@@ -15,3 +15,6 @@ all:
     tailscale:
       ansible_host: 192.168.10.9
       ansible_user: root
+    ip-invites:
+      ansible_host: 192.168.10.13
+      ansible_user: root

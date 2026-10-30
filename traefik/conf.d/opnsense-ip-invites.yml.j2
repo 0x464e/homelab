@@ -1,0 +1,39 @@
+http:
+  routers:
+    ip-invites-outpost:
+      rule: "Host(`access.{{ domain }}`) && (Path(`/outpost.goauthentik.io`) || PathPrefix(`/outpost.goauthentik.io/`))"
+      entryPoints: ["lan-https", "cf-tunnel"]
+      priority: 300
+      middlewares:
+        - cloudflarewarp
+      service: authentik
+
+    ip-invites-admin:
+      rule: "Host(`access.{{ domain }}`) && (Path(`/admin`) || PathPrefix(`/admin/`) || Path(`/api/admin`) || PathPrefix(`/api/admin/`))"
+      entryPoints: ["lan-https", "cf-tunnel"]
+      priority: 200
+      middlewares:
+        - cloudflarewarp
+        - authentik-forward-auth
+        - ip-invites-admin-secret
+      service: ip-invites
+
+    ip-invites-public:
+      rule: "Host(`access.{{ domain }}`)"
+      entryPoints: ["lan-https", "cf-tunnel"]
+      priority: 100
+      middlewares:
+        - cloudflarewarp
+      service: ip-invites
+
+  middlewares:
+    ip-invites-admin-secret:
+      headers:
+        customRequestHeaders:
+          X-Invites-Admin-Secret: {{ hostvars['ip-invites']['ip_invites_admin_proxy_secret'] | to_json }}
+
+  services:
+    ip-invites:
+      loadBalancer:
+        servers:
+          - url: "http://{{ hostvars['ip-invites']['ansible_host'] }}:{{ hostvars['ip-invites']['ip_invites_port'] }}"

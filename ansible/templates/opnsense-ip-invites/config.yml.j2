@@ -1,0 +1,15 @@
+server:
+  listen: "{{ ansible_host }}:{{ ip_invites_port }}"
+  public_url: {{ ip_invites_public_url | to_json }}
+  ipv4_public_url: ""
+  trusted_proxies:
+    - "{{ hostvars['traefik']['ansible_host'] }}/32"
+  client_ip_header: "X-Real-IP"
+database: "{{ ip_invites_state_folder }}/invites.db"
+defaults:
+{{ ip_invites_defaults | to_nice_yaml(indent=2) | indent(2, true) }}
+opnsense:
+  url: {{ ip_invites_opnsense_url | to_json }}
+  ca_file: {{ ip_invites_opnsense_ca_file | to_json }}
+  timeout: "10s"
+sync_interval: "15s"

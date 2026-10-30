@@ -41,7 +41,7 @@
 
     - name: Render cloudflared config
       ansible.builtin.template:
-        src: "../cloudflared/config.yml.j2"
+        src: "templates/cloudflared/config.yml.j2"
         dest: "{{ cloudflared_folder }}/config.yml"
       notify: Restart cloudflared
 

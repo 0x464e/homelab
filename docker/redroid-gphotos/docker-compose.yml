@@ -51,6 +51,8 @@ services:
         read_only: true
         bind:
           create_host_path: false
+    ports:
+      - "192.168.10.6:7667:8080"
     networks:
       - keeper
     healthcheck:
@@ -64,6 +66,10 @@ services:
       options:
         max-size: 10m
         max-file: "5"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redroid-gphotos.rule=Host(`redroid-gphotos.ottos.party`)"
+      - "traefik.http.routers.redroid-gphotos.entrypoints=lan-https"
 
 networks:
   keeper:

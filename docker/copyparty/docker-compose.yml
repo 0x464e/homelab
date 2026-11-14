@@ -8,6 +8,7 @@ services:
     volumes:
       - /srv/copyparty:/cfg:z
       - /mnt/share:/w:z
+      - /mnt/scratch:/scratch
 
     environment:
       LD_PRELOAD: /usr/lib/libmimalloc-secure.so.2

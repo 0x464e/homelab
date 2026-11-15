@@ -72,6 +72,7 @@ services:
       FTHLS_APP_RESTART_POLICY: resume
       FTHLS_CAMERA_NAME: terrarium
       FTHLS_FRIGATE_BASE_URL: http://frigate:5000
+      FTHLS_FRIGATE_PUBLIC_URL: https://frigate.ottos.party
       FTHLS_FRIGATE_RECORDINGS_ROOT: /media/frigate/recordings
       FTHLS_SCHEDULE_START_TIME: "08:00"
       FTHLS_SCHEDULE_END_TIME: "20:00"
